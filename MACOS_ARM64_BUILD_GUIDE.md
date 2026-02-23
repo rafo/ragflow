@@ -44,7 +44,9 @@ docker-compose -f docker-compose-macos.yml up -d --build
 
 ### 4. Access RAGFlow
 
-Open http://localhost:9380 in your browser.
+Open http://localhost in your browser (Nginx on port 80 serves the web UI).
+
+> Note: Port 9380 is the internal Flask API – not the web UI.
 
 ## Architecture
 
@@ -155,7 +157,7 @@ fi
 
 | Port | Service | Description |
 |------|---------|-------------|
-| 9380 | RAGFlow HTTP | Main web interface |
+| 9380 | RAGFlow API | Internal Flask API (not the web UI) |
 | 9381 | Admin Server | Administrative API |
 | 80/443 | Nginx | HTTP/HTTPS |
 | 5678/5679 | Debug | Python debugging ports |
@@ -433,7 +435,7 @@ A successful installation shows:
    docker ps --filter "name=minio"
    docker ps --filter "name=es01"  # or infinity
    ```
-3. RAGFlow accessible at http://localhost:9380
+3. RAGFlow accessible at http://localhost (port 80, served by Nginx)
 4. Logs show correct version:
    ```bash
    docker logs ragflow-server | grep "RAGFlow version"
