@@ -75,9 +75,16 @@ RUN --mount=type=bind,from=infiniflow/ragflow_deps:latest,source=/,target=/deps 
     fi; \
     arch="$(uname -m)"; \
     if [ "$arch" = "x86_64" ]; then uv_arch="x86_64"; else uv_arch="aarch64"; fi; \
-    tar xzf "/deps/uv-${uv_arch}-unknown-linux-gnu.tar.gz" \
-    && cp "uv-${uv_arch}-unknown-linux-gnu/"* /usr/local/bin/ \
-    && rm -rf "uv-${uv_arch}-unknown-linux-gnu" \
+    if [ -f "/deps/uv-${uv_arch}-unknown-linux-gnu.tar.gz" ]; then \
+        tar xzf "/deps/uv-${uv_arch}-unknown-linux-gnu.tar.gz" \
+        && cp "uv-${uv_arch}-unknown-linux-gnu/"* /usr/local/bin/ \
+        && rm -rf "uv-${uv_arch}-unknown-linux-gnu"; \
+    else \
+        curl -LsSf "https://github.com/astral-sh/uv/releases/latest/download/uv-${uv_arch}-unknown-linux-gnu.tar.gz" -o uv.tar.gz \
+        && tar xzf uv.tar.gz \
+        && cp "uv-${uv_arch}-unknown-linux-gnu/"* /usr/local/bin/ \
+        && rm -rf uv.tar.gz "uv-${uv_arch}-unknown-linux-gnu"; \
+    fi \
     && uv python install 3.12
 
 ENV PYTHONDONTWRITEBYTECODE=1 DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
@@ -140,7 +147,13 @@ RUN --mount=type=bind,from=infiniflow/ragflow_deps:latest,source=/,target=/deps 
     if [ "$(uname -m)" = "x86_64" ]; then \
         dpkg -i /deps/libssl1.1_1.1.1f-1ubuntu2_amd64.deb; \
     elif [ "$(uname -m)" = "aarch64" ]; then \
-        dpkg -i /deps/libssl1.1_1.1.1f-1ubuntu2_arm64.deb; \
+        if dpkg-deb --info /deps/libssl1.1_1.1.1f-1ubuntu2_arm64.deb >/dev/null 2>&1; then \
+            dpkg -i /deps/libssl1.1_1.1.1f-1ubuntu2_arm64.deb; \
+        else \
+            curl -fsSL "http://ports.ubuntu.com/ubuntu-ports/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_arm64.deb" -o /tmp/libssl1.1_arm64.deb \
+            && dpkg -i /tmp/libssl1.1_arm64.deb \
+            && rm /tmp/libssl1.1_arm64.deb; \
+        fi; \
     fi
 
 

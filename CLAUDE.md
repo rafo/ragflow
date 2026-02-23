@@ -35,10 +35,11 @@ RAGFlow is an open-source RAG (Retrieval-Augmented Generation) engine based on d
 - **Tools**: External API integrations (Tavily, Wikipedia, SQL execution, etc.)
 
 ### Frontend (`/web/`)
-- React/TypeScript with UmiJS framework
+- React/TypeScript with **Vite** (migrated from UmiJS in v0.24.0)
 - Ant Design + shadcn/ui components
 - State management with Zustand
 - Tailwind CSS for styling
+- Environment variables use `VITE_*` prefix (previously `UMI_APP_*`)
 
 ## Common Development Commands
 
@@ -69,8 +70,8 @@ ruff format
 ```bash
 cd web
 npm install
-npm run dev        # Development server
-npm run build      # Production build
+npm run dev        # Development server (Vite, since v0.24.0)
+npm run build      # Production build (Vite)
 npm run lint       # ESLint
 npm run test       # Jest tests
 ```
