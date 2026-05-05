@@ -29,7 +29,20 @@ docker-compose -f docker-compose-macos.yml pull ragflow
 docker-compose -f docker-compose-macos.yml up -d
 ```
 
-### Schritt 3 — Falls der Build mit "patch WARNING" fehlschlägt
+### Schritt 3 — Falls der Build mit Node.js-Deprecation-Warnung fehlschlägt (ab Juni 2026)
+
+In `.github/workflows/build-arm64.yml` die Action-Versionen aktualisieren:
+- `actions/checkout@v4` → `@v5`
+- `docker/setup-buildx-action@v3` → neueste Version prüfen
+- `docker/login-action@v3` → neueste Version prüfen
+- `docker/build-push-action@v6` → neueste Version prüfen
+
+```bash
+git add .github/workflows/build-arm64.yml && git commit -m "chore: bump GHA action versions for Node.js 24"
+git push fork macos-arm64
+```
+
+### Schritt 4 — Falls der Build mit "patch WARNING" fehlschlägt
 
 Der Upstream-Dockerfile hat sich geändert. Muster in `scripts/apply-arm64-patches.py` aktualisieren (Variablen `UV_OLD` und `LIBSSL_OLD`), dann neu pushen und Workflow wiederholen:
 
