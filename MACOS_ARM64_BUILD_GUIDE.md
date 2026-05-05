@@ -1,6 +1,46 @@
 # RAGFlow macOS ARM64 Build Guide
 
-This guide documents building and running RAGFlow natively on macOS with Apple Silicon (ARM64/M1/M2/M3).
+---
+
+## Neues Release: Checkliste (3 Schritte)
+
+> Fork `rafo/ragflow` ist eingerichtet. GitHub Actions baut das ARM64-Image in der Cloud (~35 Min), lokal nur `docker pull`.
+
+### Schritt 1 — Build starten
+
+```bash
+gh workflow run "Build ARM64 Docker Image" \
+  --repo rafo/ragflow \
+  --ref macos-arm64 \
+  --field version=vX.Y.Z
+```
+
+Build-Fortschritt: https://github.com/rafo/ragflow/actions
+
+### Schritt 2 — Nach ~35 Minuten: Image holen und starten
+
+```bash
+# VERSION in docker/.env aktualisieren (zwei Zeilen):
+# RAGFLOW_IMAGE=infiniflow/ragflow:vX.Y.Z
+# RAGFLOW_ARM64_IMAGE=ghcr.io/rafo/ragflow:vX.Y.Z-arm64
+
+cd /Users/rafael/docker/ragflow/docker
+docker-compose -f docker-compose-macos.yml pull ragflow
+docker-compose -f docker-compose-macos.yml up -d
+```
+
+### Schritt 3 — Falls der Build mit "patch WARNING" fehlschlägt
+
+Der Upstream-Dockerfile hat sich geändert. Muster in `scripts/apply-arm64-patches.py` aktualisieren (Variablen `UV_OLD` und `LIBSSL_OLD`), dann neu pushen und Workflow wiederholen:
+
+```bash
+# Nach dem Edit:
+git add scripts/apply-arm64-patches.py && git commit -m "fix: update ARM64 patch patterns for vX.Y.Z"
+git push fork macos-arm64
+# Dann Schritt 1 wiederholen
+```
+
+---
 
 ## Overview
 
