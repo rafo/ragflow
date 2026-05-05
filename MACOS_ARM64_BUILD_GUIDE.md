@@ -1,10 +1,14 @@
 # RAGFlow macOS ARM64 Build Guide
 
-This guide documents the process for building and running RAGFlow natively on macOS with Apple Silicon (ARM64/M1/M2/M3).
+This guide documents building and running RAGFlow natively on macOS with Apple Silicon (ARM64/M1/M2/M3).
 
 ## Overview
 
-RAGFlow's official Docker images are built for x86_64 architecture only. This guide provides a configuration for building RAGFlow from source on macOS using native ARM64 architecture, avoiding emulation overhead and providing better performance.
+RAGFlow's official Docker images are built for x86_64 architecture only. This guide documents two approaches for running RAGFlow on Apple Silicon:
+
+**Recommended: GitHub Actions (pre-built image)** — Build once in the cloud, pull and run locally. No 30-minute local build needed. See [GitHub Actions Setup](#github-actions-automated-arm64-builds).
+
+**Fallback: Local build from source** — Build directly on your Mac using Colima. Required if you need a custom build or GitHub Actions isn't available.
 
 ## Prerequisites
 
@@ -13,9 +17,92 @@ RAGFlow's official Docker images are built for x86_64 architecture only. This gu
 - Docker Compose
 - At least 16GB RAM and 50GB disk space
 
-## Quick Start
+---
 
-### 1. Start Colima
+## GitHub Actions: Automated ARM64 Builds
+
+This is the recommended approach. GitHub Actions builds the image on native ARM64 runners (free for public repositories) and pushes it to the GitHub Container Registry (ghcr.io). Locally you only need `docker pull`.
+
+### One-Time Setup
+
+#### 1. Fork the repository on GitHub
+
+Go to https://github.com/infiniflow/ragflow and click **Fork**. Use your GitHub username as the owner.
+
+#### 2. Add your fork as a remote
+
+```bash
+git remote add myfork https://github.com/YOUR_USERNAME/ragflow.git
+```
+
+#### 3. Push your local branch to the fork
+
+```bash
+# Create a named branch from the current HEAD (our macOS customizations)
+git checkout -b macos-arm64
+git push -u myfork macos-arm64
+```
+
+#### 4. Make the GitHub Container Registry package public
+
+After the first workflow run:
+1. Go to `https://github.com/YOUR_USERNAME?tab=packages`
+2. Click on the `ragflow` package → **Package settings**
+3. Set visibility to **Public** (so `docker pull` works without authentication)
+
+### Running a Build
+
+1. Go to `https://github.com/YOUR_USERNAME/ragflow/actions`
+2. Select **Build ARM64 Docker Image**
+3. Click **Run workflow** and enter the version (e.g. `v0.25.1`)
+4. Wait ~30–40 minutes for the image to be built and pushed
+
+The image will be available at:
+```
+ghcr.io/YOUR_USERNAME/ragflow:v0.25.1-arm64
+```
+
+### Using the Pre-Built Image Locally
+
+```bash
+# 1. Set the image in docker/.env (replace YOUR_USERNAME)
+# RAGFLOW_ARM64_IMAGE=ghcr.io/YOUR_USERNAME/ragflow:v0.25.1-arm64
+
+# 2. Pull
+docker-compose -f docker-compose-macos.yml pull ragflow
+
+# 3. Start
+docker-compose -f docker-compose-macos.yml up -d
+```
+
+### Upgrading to a New Version
+
+```bash
+# 1. Fetch new upstream tag
+git fetch origin tag vX.Y.Z --no-tags
+
+# 2. Create branch at new tag
+git checkout -b macos-arm64-vX.Y.Z vX.Y.Z
+
+# 3. Cherry-pick our customization commits
+git cherry-pick <our-commit-hash>   # docker-compose-macos.yml etc.
+
+# 4. Push to fork
+git push myfork macos-arm64-vX.Y.Z
+
+# 5. Run the GitHub Actions workflow for vX.Y.Z
+
+# 6. Update RAGFLOW_ARM64_IMAGE= in docker/.env
+# 7. docker-compose pull ragflow && docker-compose up -d
+```
+
+---
+
+## Local Build from Source (Fallback)
+
+### Quick Start
+
+#### 1. Start Colima
 
 ```bash
 colima start --cpu 6 --memory 12 --disk 100 --arch aarch64 --vm-type=vz
@@ -24,7 +111,7 @@ colima start --cpu 6 --memory 12 --disk 100 --arch aarch64 --vm-type=vz
 # Note: --vm-type and --mount-type cannot be changed after initial VM creation
 ```
 
-### 2. Verify Docker Buildx
+#### 2. Verify Docker Buildx
 
 ```bash
 # Check if buildx is available
@@ -35,14 +122,14 @@ mkdir -p ~/.docker/cli-plugins
 ln -sf /opt/homebrew/bin/docker-buildx ~/.docker/cli-plugins/docker-buildx
 ```
 
-### 3. Build and Start RAGFlow
+#### 3. Build and Start RAGFlow
 
 ```bash
 cd /path/to/ragflow/docker
 docker-compose -f docker-compose-macos.yml up -d --build
 ```
 
-### 4. Access RAGFlow
+#### 4. Access RAGFlow
 
 Open http://localhost in your browser (Nginx on port 80 serves the web UI).
 
@@ -50,7 +137,7 @@ Open http://localhost in your browser (Nginx on port 80 serves the web UI).
 
 ## Architecture
 
-RAGFlow v0.24.0 includes these services:
+RAGFlow v0.25.1 includes these services:
 
 - **ragflow-server**: Main application (Flask API + Nginx)
 - **mysql**: Metadata storage
@@ -58,18 +145,16 @@ RAGFlow v0.24.0 includes these services:
 - **minio**: Object storage for documents
 - **es01** (or **infinity**): Vector database for embeddings
 
-### Features (v0.24.0)
+### Features (v0.25.1)
 
-- **Memory System**: APIs and SDK for developer integration
-- **Vite Frontend**: Build system migrated from UmiJS to Vite; env vars use `VITE_*` prefix
-- **Admin Server**: Administrative API on port 9381
-- **MCP Server**: Model Context Protocol support on port 9382
-- **Thinking Mode**: Replaces previous "Reasoning" option
-- **Multi-Sandbox**: Local gVisor + Alibaba Cloud sandbox support
-- **New Data Sources**: Zendesk, Bitbucket, Seafile, MySQL, PostgreSQL
-- **OceanBase Support**: As MySQL alternative
-- **PaddleOCR-VL**: Parser support added
-- **Aspose Removed**: PPT parsing now uses Tika (no .NET dependency needed)
+- **REST API standardization**: All web API endpoints migrated to RESTful conventions
+- **PDF improvements**: OpenDataLoader as new PDF backend; lazy/chunked parsing for large PDFs (>50 pages)
+- **New models**: DeepSeek v4, UCloud model provider
+- **Data sync deletion**: Bitbucket, Gmail, Google Drive, Airtable now sync deletions
+- **New ports**: 9383 (Go admin), 9384 (Go HTTP service)
+- **Security**: SSRF vulnerability fixes in URL crawling; optional crypto for stored data
+- **SSO support**: `DISABLE_PASSWORD_LOGIN=false` env var
+- **DocLing**: Optional PDF backend via `USE_DOCLING=true`
 
 ## Configuration Details
 
@@ -157,11 +242,13 @@ fi
 
 | Port | Service | Description |
 |------|---------|-------------|
-| 9380 | RAGFlow API | Internal Flask API (not the web UI) |
+| 80/443 | Nginx | HTTP/HTTPS (web UI) |
+| 9380 | RAGFlow API | Internal Flask API |
 | 9381 | Admin Server | Administrative API |
-| 80/443 | Nginx | HTTP/HTTPS |
-| 5678/5679 | Debug | Python debugging ports |
 | 9382 | MCP | Model Context Protocol |
+| 9383 | Go Admin | Go admin service (v0.25.1+) |
+| 9384 | Go HTTP | Go HTTP service (v0.25.1+) |
+| 5678/5679 | Debug | Python debugging ports |
 
 ## Build Process
 
@@ -212,25 +299,46 @@ docker-compose -f docker-compose-macos.yml up -d --build --force-recreate
 
 ## Update to a New Version
 
+### Via GitHub Actions (Recommended)
+
 ```bash
-# 1. Save our custom patches
-git stash push -m "macOS ARM64 modifications"
+# 1. Fetch new upstream tag
+git fetch origin tag vX.Y.Z --no-tags
 
-# 2. Fetch new tags and checkout
-git fetch --tags
-git checkout v0.24.0   # replace with target version
+# 2. Create branch at new upstream tag
+git checkout -b macos-arm64-vX.Y.Z vX.Y.Z
 
-# 3. Re-apply our patches (expect possible conflicts in Dockerfile and docker/.env)
-git stash pop
+# 3. Cherry-pick our customisation commits onto the new tag
+git cherry-pick <hash-of-our-macos-arm64-commits>
 
-# 4. If Dockerfile conflicts: manually re-apply the ARM64 uv patch (see above)
-# If .env conflicts: ensure MACOS=1 and TIMEZONE=Europe/Berlin are set
+# 4. Push to your fork and trigger the build-arm64 workflow for vX.Y.Z
 
-# 5. Update RAGFLOW_IMAGE version in docker/.env
-# Change: RAGFLOW_IMAGE=infiniflow/ragflow:v0.23.1
-# To:     RAGFLOW_IMAGE=infiniflow/ragflow:v0.24.0
+# 5. When done, update docker/.env:
+#    RAGFLOW_IMAGE=infiniflow/ragflow:vX.Y.Z
+#    RAGFLOW_ARM64_IMAGE=ghcr.io/YOUR_USERNAME/ragflow:vX.Y.Z-arm64
 
-# 6. Rebuild
+# 6. Pull and restart
+docker-compose -f docker-compose-macos.yml pull ragflow
+docker-compose -f docker-compose-macos.yml up -d
+```
+
+### Via Local Build (Fallback)
+
+```bash
+# 1. Fetch new tag and check out
+git fetch origin tag vX.Y.Z --no-tags
+git checkout -b macos-arm64-vX.Y.Z vX.Y.Z
+
+# 2. Apply ARM64 patches to Dockerfile
+python3 scripts/apply-arm64-patches.py Dockerfile
+
+# 3. Copy over our custom files
+git checkout HEAD~0 -- docker/docker-compose-macos.yml  # or restore manually
+
+# 4. Update docker/.env version reference
+# RAGFLOW_IMAGE=infiniflow/ragflow:vX.Y.Z
+
+# 5. Rebuild
 cd docker
 docker-compose -f docker-compose-macos.yml up -d --build
 ```
@@ -396,31 +504,33 @@ Summary of custom changes to the RAGFlow repository for macOS ARM64:
 - **Build caching**: Subsequent builds take 2-5 minutes with Docker cache
 - **Resource usage**: ~8GB RAM for full stack, ~4GB disk for images
 
-## Version Upgrade Notes (v0.23.1 → v0.24.0)
+## Version Upgrade Notes
 
-**Breaking Changes:**
+### v0.24.0 → v0.25.1
 
-1. **Frontend: UmiJS → Vite** — Build system fully replaced. `npm run build` still works via package.json scripts, but env vars now use `VITE_*` prefix (previously `UMI_APP_*`).
-2. **"Reasoning" removed** — The "Reasoning" configuration option is replaced by "Thinking" mode.
-3. **Aspose removed** — PPT parsing now uses Apache Tika. `DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1` is no longer needed (kept in .env for safety, harmless).
+**No breaking changes for macOS ARM64 setup.**
 
-**New in v0.24.0:**
-- Memory system with APIs and SDK
-- Batch metadata management for datasets
-- "PageIndex" (renamed from "Table of Contents")
-- Multi-admin account support
-- Model connection testing when adding models
-- New data sources: Zendesk, Bitbucket, Seafile, MySQL, PostgreSQL
-- OceanBase support as MySQL alternative
-- PaddleOCR-VL parser
-- Kimi 2.5, Stepfun 3, doubao-embedding-vision models
+**New in v0.25.1:**
+- REST API endpoints fully standardized to RESTful conventions
+- PDF: OpenDataLoader backend, lazy loading for >50 page PDFs
+- New models: DeepSeek v4, UCloud
+- File deletion sync: Bitbucket, Gmail, Google Drive, Airtable
+- New ports: 9383 (Go admin), 9384 (Go HTTP) — added to compose-macos.yml
+- New env vars: `GO_HTTP_PORT`, `GO_ADMIN_PORT`, `DISABLE_PASSWORD_LOGIN`
+- Security: SSRF fixes, optional data encryption (`RAGFLOW_CRYPTO_*`)
 
-**Dockerfile patch conflict resolution:**
-When doing `git stash pop` after checkout, Dockerfile conflicts are expected. The upstream
-Dockerfile changes significantly between versions. Always verify the ARM64 uv patch is
-correctly applied before building.
+**Dockerfile patches status:** Both ARM64 patches (uv fallback, libssl validation) are still
+needed — upstream v0.25.1 still ships the broken `ragflow_deps:latest` for aarch64.
 
-No database migrations required. Existing data is compatible.
+**Database:** No migrations required. Existing v0.24.0 data is compatible.
+
+### v0.23.1 → v0.24.0
+
+1. **Frontend: UmiJS → Vite** — env vars use `VITE_*` prefix (previously `UMI_APP_*`).
+2. **"Reasoning" replaced by "Thinking" mode.**
+3. **Aspose removed** — PPT parsing uses Apache Tika.
+
+No database migrations required.
 
 ## Success Indicators
 
@@ -456,7 +566,8 @@ A successful installation shows:
 
 ---
 
-**Last Updated**: February 2026
-**RAGFlow Version**: v0.24.0
-**Tested On**: macOS (Apple Silicon), Colima 0.x (QEMU backend), Docker 27.4.0
-**Build Time**: ~20-30 minutes (initial), ~2-5 minutes (cached)
+**Last Updated**: May 2026
+**RAGFlow Version**: v0.25.1
+**Tested On**: macOS (Apple Silicon), Colima, Docker 27.4.0
+**Local Build Time**: ~20-30 minutes (initial), ~2-5 minutes (cached)
+**GitHub Actions Build Time**: ~30-40 minutes (first build), faster with GHA cache

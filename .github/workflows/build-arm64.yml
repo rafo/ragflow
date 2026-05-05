@@ -1,0 +1,98 @@
+name: Build ARM64 Docker Image
+
+# Builds a linux/arm64 RAGFlow image and pushes it to ghcr.io.
+# Uses native ARM64 runners (ubuntu-24.04-arm) — no QEMU emulation needed.
+# Free for public repositories.
+#
+# After a successful run the image is available as:
+#   ghcr.io/OWNER/ragflow:vX.Y.Z-arm64
+#   ghcr.io/OWNER/ragflow:latest-arm64
+#
+# To use the pre-built image locally (instead of a 30-min local build):
+#   docker pull ghcr.io/OWNER/ragflow:vX.Y.Z-arm64
+#   # Set RAGFLOW_ARM64_IMAGE=ghcr.io/OWNER/ragflow:vX.Y.Z-arm64 in docker/.env
+#   docker-compose -f docker-compose-macos.yml up -d
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'RAGFlow upstream version tag to build (e.g. v0.25.1)'
+        required: true
+        default: 'v0.25.1'
+        type: string
+      dry_run:
+        description: 'Build only — skip push to registry (for testing)'
+        required: false
+        default: false
+        type: boolean
+
+  # Uncomment to auto-check for new upstream releases every Monday morning:
+  # schedule:
+  #   - cron: '0 7 * * 1'
+
+env:
+  REGISTRY: ghcr.io
+  # Image published as ghcr.io/OWNER/ragflow (uses the fork owner automatically)
+  IMAGE_NAME: ${{ github.repository_owner }}/ragflow
+
+jobs:
+  build-arm64:
+    name: Build linux/arm64
+    # Native ARM64 runner — free on public repos, no QEMU overhead
+    runs-on: ubuntu-24.04-arm
+
+    permissions:
+      contents: read
+      packages: write   # Required to push to ghcr.io
+
+    steps:
+      - name: Checkout this fork (for patch scripts)
+        uses: actions/checkout@v4
+        with:
+          path: fork
+
+      - name: Checkout upstream RAGFlow ${{ inputs.version }}
+        uses: actions/checkout@v4
+        with:
+          repository: infiniflow/ragflow
+          ref: ${{ inputs.version }}
+          # Full history needed — Dockerfile runs `git describe` to generate VERSION
+          fetch-depth: 0
+          path: ragflow-src
+
+      - name: Apply ARM64 patches to Dockerfile
+        run: |
+          python3 fork/scripts/apply-arm64-patches.py ragflow-src/Dockerfile
+          echo "--- Patched sections ---"
+          grep -n "curl.*uv.*unknown-linux\|dpkg-deb --info" ragflow-src/Dockerfile || true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        if: ${{ !inputs.dry_run }}
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ragflow-src
+          platforms: linux/arm64
+          push: ${{ !inputs.dry_run }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ inputs.version }}-arm64
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-arm64
+          # GitHub Actions cache — speeds up repeat builds significantly
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NEED_MIRROR=0
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.description=RAGFlow ${{ inputs.version }} built for linux/arm64 (macOS Apple Silicon)
+            org.opencontainers.image.revision=${{ inputs.version }}

@@ -12,6 +12,16 @@ services:
   ragflow:
     # Removed platform constraint to allow native ARM64 build on Apple Silicon
     # platform: linux/amd64
+    #
+    # Pre-built image mode (recommended — no 30-min local build):
+    #   1. Set RAGFLOW_ARM64_IMAGE=ghcr.io/OWNER/ragflow:vX.Y.Z-arm64 in .env
+    #   2. docker-compose -f docker-compose-macos.yml pull ragflow
+    #   3. docker-compose -f docker-compose-macos.yml up -d
+    #
+    # Local build mode (fallback):
+    #   Comment out RAGFLOW_ARM64_IMAGE in .env, then:
+    #   docker-compose -f docker-compose-macos.yml up -d --build
+    image: ${RAGFLOW_ARM64_IMAGE:-ragflow-macos-arm64:latest}
     depends_on:
       mysql:
         condition: service_healthy
@@ -35,8 +45,8 @@ services:
     #   - --no-json-response # Disable JSON response mode in Streamable HTTP transport (instead of SSE over HTTP)
 
     # Example configration to start Admin server:
-    # command:
-    #   - --enable-adminserver
+    command:
+      - --enable-adminserver
     container_name: ragflow-server
     ports:
       - ${SVR_HTTP_PORT}:9380
@@ -46,6 +56,8 @@ services:
       - 5678:5678
       - 5679:5679
       - 9382:9382 # entry for MCP (host_port:docker_port). The docker_port must match the value you set for `mcp-port` above.
+      - ${GO_ADMIN_PORT:-9383}:9383  # Go admin service (v0.25.1+)
+      - ${GO_HTTP_PORT:-9384}:9384   # Go HTTP service (v0.25.1+)
     volumes:
       - ./ragflow-logs:/ragflow/logs
       - ./nginx/ragflow.conf:/etc/nginx/conf.d/ragflow.conf
