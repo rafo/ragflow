@@ -22,7 +22,7 @@ UV_OLD = (
     '    tar xzf "/deps/uv-${uv_arch}-unknown-linux-gnu.tar.gz" \\\n'
     '    && cp "uv-${uv_arch}-unknown-linux-gnu/"* /usr/local/bin/ \\\n'
     '    && rm -rf "uv-${uv_arch}-unknown-linux-gnu" \\\n'
-    '    && uv python install 3.12'
+    '    && uv python install 3.13'
 )
 UV_NEW = (
     '    if [ -f "/deps/uv-${uv_arch}-unknown-linux-gnu.tar.gz" ]; then \\\n'
@@ -35,7 +35,7 @@ UV_NEW = (
     '        && cp "uv-${uv_arch}-unknown-linux-gnu/"* /usr/local/bin/ \\\n'
     '        && rm -rf uv.tar.gz "uv-${uv_arch}-unknown-linux-gnu"; \\\n'
     '    fi \\\n'
-    '    && uv python install 3.12'
+    '    && uv python install 3.13'
 )
 # Detection string: present if patch is already applied
 UV_APPLIED_MARKER = 'curl -LsSf "https://github.com/astral-sh/uv/releases/latest/download/uv-${uv_arch}'
