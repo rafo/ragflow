@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router';
 
 import { LucideHouse, LucideMenu } from 'lucide-react';
 
+import { getBranding } from '@/branding';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
@@ -267,7 +268,11 @@ export function MobileNavbar({ renderFooter }: MobileNavbarProps) {
         className="flex w-[min(85vw,18rem)] flex-col gap-0 p-0 sm:w-72"
       >
         <div className="flex shrink-0 justify-center py-5">
-          <img src="/logo.svg" alt="RAGFlow logo" className="size-9" />
+          <img
+            src={getBranding().logoUrl}
+            alt={`${getBranding().appName} logo`}
+            className="size-9"
+          />
         </div>
 
         <nav className="min-h-0 flex-1 overflow-y-auto py-3">

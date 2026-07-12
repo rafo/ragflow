@@ -19,6 +19,7 @@ import { Inspector } from 'react-dev-inspector';
 import ReactDOM from 'react-dom/client';
 import '../tailwind.css';
 import App from './app';
+import { loadBranding } from './branding';
 import './global.less';
 import { initLanguage } from './locales/config';
 import { fetchBillingStatus } from '@/ee/services/billingStatus';
@@ -41,7 +42,7 @@ window.addEventListener('vite:preloadError', (event) => {
   window.location.reload();
 });
 
-initLanguage()
+Promise.all([initLanguage(), loadBranding()])
   .then(() => fetchBillingStatus())
   .then(() => {
     ReactDOM.createRoot(document.getElementById('root')!).render(

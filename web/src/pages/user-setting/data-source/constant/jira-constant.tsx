@@ -14,6 +14,7 @@
  *  limitations under the License.
  */
 
+import { getBranding } from '@/branding';
 import { FormFieldType } from '@/components/dynamic-form';
 import { TFunction } from 'i18next';
 
@@ -70,7 +71,7 @@ export const jiraConstant = (t: TFunction) => [
     name: 'config.project_key',
     type: FormFieldType.Text,
     required: false,
-    placeholder: 'RAGFlow',
+    placeholder: getBranding().appName,
     tooltip: t('setting.jiraProjectKeyTip'),
   },
   {
