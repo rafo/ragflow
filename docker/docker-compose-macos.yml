@@ -1,102 +1,102 @@
-[38;2;131;148;150m   1[0m [38;2;249;38;114minclude[0m[38;2;248;248;242m:[0m
-[38;2;131;148;150m   2[0m [38;2;248;248;242m  [0m[38;2;248;248;242m-[0m[38;2;248;248;242m [0m[38;2;230;219;116m./docker-compose-base.yml[0m
-[38;2;131;148;150m   3[0m 
-[38;2;131;148;150m   4[0m [38;2;117;113;94m#[0m[38;2;117;113;94m macOS ARM64 Build Configuration[0m
-[38;2;131;148;150m   5[0m [38;2;117;113;94m#[0m[38;2;117;113;94m This file is specifically configured for native ARM64 builds on Apple Silicon[0m
-[38;2;131;148;150m   6[0m [38;2;117;113;94m#[0m[38;2;117;113;94m Key differences from docker-compose.yml:[0m
-[38;2;131;148;150m   7[0m [38;2;117;113;94m#[0m[38;2;117;113;94m 1. Uses `build:` instead of `image:` to compile from source[0m
-[38;2;131;148;150m   8[0m [38;2;117;113;94m#[0m[38;2;117;113;94m 2. Platform constraint removed for native ARM64 support[0m
-[38;2;131;148;150m   9[0m [38;2;117;113;94m#[0m[38;2;117;113;94m 3. MACOS environment variable set[0m
-[38;2;131;148;150m  10[0m 
-[38;2;131;148;150m  11[0m [38;2;249;38;114mservices[0m[38;2;248;248;242m:[0m
-[38;2;131;148;150m  12[0m [38;2;248;248;242m  [0m[38;2;249;38;114mragflow[0m[38;2;248;248;242m:[0m
-[38;2;131;148;150m  13[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m[38;2;117;113;94m Removed platform constraint to allow native ARM64 build on Apple Silicon[0m
-[38;2;131;148;150m  14[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m[38;2;117;113;94m platform: linux/amd64[0m
-[38;2;131;148;150m  15[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m
-[38;2;131;148;150m  16[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m[38;2;117;113;94m Pre-built image mode (recommended — no 30-min local build):[0m
-[38;2;131;148;150m  17[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m[38;2;117;113;94m   1. Set RAGFLOW_ARM64_IMAGE=ghcr.io/OWNER/ragflow:vX.Y.Z-arm64 in .env[0m
-[38;2;131;148;150m  18[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m[38;2;117;113;94m   2. docker-compose -f docker-compose-macos.yml pull ragflow[0m
-[38;2;131;148;150m  19[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m[38;2;117;113;94m   3. docker-compose -f docker-compose-macos.yml up -d[0m
-[38;2;131;148;150m  20[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m
-[38;2;131;148;150m  21[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m[38;2;117;113;94m Local build mode (fallback):[0m
-[38;2;131;148;150m  22[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m[38;2;117;113;94m   Comment out RAGFLOW_ARM64_IMAGE in .env, then:[0m
-[38;2;131;148;150m  23[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m[38;2;117;113;94m   docker-compose -f docker-compose-macos.yml up -d --build[0m
-[38;2;131;148;150m  24[0m [38;2;248;248;242m    [0m[38;2;249;38;114mimage[0m[38;2;248;248;242m:[0m[38;2;248;248;242m [0m[38;2;230;219;116m${RAGFLOW_ARM64_IMAGE:-ragflow-macos-arm64:latest}[0m
-[38;2;131;148;150m  25[0m [38;2;248;248;242m    [0m[38;2;249;38;114mdepends_on[0m[38;2;248;248;242m:[0m
-[38;2;131;148;150m  26[0m [38;2;248;248;242m      [0m[38;2;249;38;114mmysql[0m[38;2;248;248;242m:[0m
-[38;2;131;148;150m  27[0m [38;2;248;248;242m        [0m[38;2;249;38;114mcondition[0m[38;2;248;248;242m:[0m[38;2;248;248;242m [0m[38;2;230;219;116mservice_healthy[0m
-[38;2;131;148;150m  28[0m [38;2;248;248;242m    [0m[38;2;249;38;114mbuild[0m[38;2;248;248;242m:[0m
-[38;2;131;148;150m  29[0m [38;2;248;248;242m      [0m[38;2;249;38;114mcontext[0m[38;2;248;248;242m:[0m[38;2;248;248;242m [0m[38;2;230;219;116m../[0m
-[38;2;131;148;150m  30[0m [38;2;248;248;242m      [0m[38;2;249;38;114mdockerfile[0m[38;2;248;248;242m:[0m[38;2;248;248;242m [0m[38;2;230;219;116mDockerfile[0m
-[38;2;131;148;150m  31[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m[38;2;117;113;94m Example configuration to set up an MCP server:[0m
-[38;2;131;148;150m  32[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m[38;2;117;113;94m command:[0m
-[38;2;131;148;150m  33[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m[38;2;117;113;94m   - --enable-mcpserver[0m
-[38;2;131;148;150m  34[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m[38;2;117;113;94m   - --mcp-host=0.0.0.0[0m
-[38;2;131;148;150m  35[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m[38;2;117;113;94m   - --mcp-port=9382[0m
-[38;2;131;148;150m  36[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m[38;2;117;113;94m   - --mcp-base-url=http://127.0.0.1:9380[0m
-[38;2;131;148;150m  37[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m[38;2;117;113;94m   - --mcp-script-path=/ragflow/mcp/server/server.py[0m
-[38;2;131;148;150m  38[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m[38;2;117;113;94m   - --mcp-mode=self-host[0m
-[38;2;131;148;150m  39[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m[38;2;117;113;94m   - --mcp-host-api-key=ragflow-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx[0m
-[38;2;131;148;150m  40[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m[38;2;117;113;94m Optional transport flags for MCP (customize if needed).[0m
-[38;2;131;148;150m  41[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m[38;2;117;113;94m Host mode need to combined with --no-transport-streamable-http-enabled flag, namely, host+streamable-http is not supported yet.[0m
-[38;2;131;148;150m  42[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m[38;2;117;113;94m The following are enabled by default unless explicitly disabled with --no-<flag>.[0m
-[38;2;131;148;150m  43[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m[38;2;117;113;94m   - --no-transport-sse-enabled # Disable legacy SSE endpoints (/sse and /messages/)[0m
-[38;2;131;148;150m  44[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m[38;2;117;113;94m   - --no-transport-streamable-http-enabled #  Disable Streamable HTTP transport (/mcp endpoint)[0m
-[38;2;131;148;150m  45[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m[38;2;117;113;94m   - --no-json-response # Disable JSON response mode in Streamable HTTP transport (instead of SSE over HTTP)[0m
-[38;2;131;148;150m  46[0m 
-[38;2;131;148;150m  47[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m[38;2;117;113;94m Example configration to start Admin server:[0m
-[38;2;131;148;150m  48[0m [38;2;248;248;242m    [0m[38;2;249;38;114mcommand[0m[38;2;248;248;242m:[0m
-[38;2;131;148;150m  49[0m [38;2;248;248;242m      [0m[38;2;248;248;242m-[0m[38;2;248;248;242m [0m[38;2;230;219;116m--enable-adminserver[0m
-[38;2;131;148;150m  50[0m [38;2;248;248;242m    [0m[38;2;249;38;114mcontainer_name[0m[38;2;248;248;242m:[0m[38;2;248;248;242m [0m[38;2;230;219;116mragflow-server[0m
-[38;2;131;148;150m  51[0m [38;2;248;248;242m    [0m[38;2;249;38;114mports[0m[38;2;248;248;242m:[0m
-[38;2;131;148;150m  52[0m [38;2;248;248;242m      [0m[38;2;248;248;242m-[0m[38;2;248;248;242m [0m[38;2;230;219;116m${SVR_HTTP_PORT}:9380[0m
-[38;2;131;148;150m  53[0m [38;2;248;248;242m      [0m[38;2;248;248;242m-[0m[38;2;248;248;242m [0m[38;2;230;219;116m${ADMIN_SVR_HTTP_PORT}:9381[0m
-[38;2;131;148;150m  54[0m [38;2;248;248;242m      [0m[38;2;248;248;242m-[0m[38;2;248;248;242m [0m[38;2;230;219;116m80:80[0m
-[38;2;131;148;150m  55[0m [38;2;248;248;242m      [0m[38;2;248;248;242m-[0m[38;2;248;248;242m [0m[38;2;230;219;116m443:443[0m
-[38;2;131;148;150m  56[0m [38;2;248;248;242m      [0m[38;2;248;248;242m-[0m[38;2;248;248;242m [0m[38;2;230;219;116m5678:5678[0m
-[38;2;131;148;150m  57[0m [38;2;248;248;242m      [0m[38;2;248;248;242m-[0m[38;2;248;248;242m [0m[38;2;230;219;116m5679:5679[0m
-[38;2;131;148;150m  58[0m [38;2;248;248;242m      [0m[38;2;248;248;242m-[0m[38;2;248;248;242m [0m[38;2;230;219;116m9382:9382[0m[38;2;248;248;242m [0m[38;2;117;113;94m#[0m[38;2;117;113;94m entry for MCP (host_port:docker_port). The docker_port must match the value you set for `mcp-port` above.[0m
-[38;2;131;148;150m  59[0m [38;2;248;248;242m      [0m[38;2;248;248;242m-[0m[38;2;248;248;242m [0m[38;2;230;219;116m${GO_ADMIN_PORT:-9383}:9383[0m[38;2;248;248;242m  [0m[38;2;117;113;94m#[0m[38;2;117;113;94m Go admin service (v0.25.1+)[0m
-[38;2;131;148;150m  60[0m [38;2;248;248;242m      [0m[38;2;248;248;242m-[0m[38;2;248;248;242m [0m[38;2;230;219;116m${GO_HTTP_PORT:-9384}:9384[0m[38;2;248;248;242m   [0m[38;2;117;113;94m#[0m[38;2;117;113;94m Go HTTP service (v0.25.1+)[0m
-[38;2;131;148;150m  61[0m [38;2;248;248;242m    [0m[38;2;249;38;114mvolumes[0m[38;2;248;248;242m:[0m
-[38;2;131;148;150m  62[0m [38;2;248;248;242m      [0m[38;2;248;248;242m-[0m[38;2;248;248;242m [0m[38;2;230;219;116m./ragflow-logs:/ragflow/logs[0m
-[38;2;131;148;150m  63[0m [38;2;248;248;242m      [0m[38;2;248;248;242m-[0m[38;2;248;248;242m [0m[38;2;230;219;116m./nginx/ragflow.conf:/etc/nginx/conf.d/ragflow.conf[0m
-[38;2;131;148;150m  64[0m [38;2;248;248;242m      [0m[38;2;248;248;242m-[0m[38;2;248;248;242m [0m[38;2;230;219;116m./nginx/proxy.conf:/etc/nginx/proxy.conf[0m
-[38;2;131;148;150m  65[0m [38;2;248;248;242m      [0m[38;2;248;248;242m-[0m[38;2;248;248;242m [0m[38;2;230;219;116m./nginx/nginx.conf:/etc/nginx/nginx.conf[0m
-[38;2;131;148;150m  66[0m [38;2;248;248;242m      [0m[38;2;248;248;242m-[0m[38;2;248;248;242m [0m[38;2;230;219;116m../history_data_agent:/ragflow/history_data_agent[0m
-[38;2;131;148;150m  67[0m [38;2;248;248;242m      [0m[38;2;248;248;242m-[0m[38;2;248;248;242m [0m[38;2;230;219;116m./service_conf.yaml.template:/ragflow/conf/service_conf.yaml.template[0m
-[38;2;131;148;150m  68[0m [38;2;248;248;242m      [0m[38;2;248;248;242m-[0m[38;2;248;248;242m [0m[38;2;230;219;116m./entrypoint.sh:/ragflow/entrypoint.sh[0m
-[38;2;131;148;150m  69[0m [38;2;248;248;242m      [0m[38;2;117;113;94m#[0m[38;2;117;113;94m Custom frontend build — overrides image's built-in web/dist.[0m
-[38;2;131;148;150m  70[0m [38;2;248;248;242m      [0m[38;2;117;113;94m#[0m[38;2;117;113;94m IMPORTANT: web/src must match the backend version before building![0m
-[38;2;131;148;150m  71[0m [38;2;248;248;242m      [0m[38;2;117;113;94m#[0m[38;2;117;113;94m Build with: cd web && npm run build[0m
-[38;2;131;148;150m  72[0m [38;2;248;248;242m      [0m[38;2;248;248;242m-[0m[38;2;248;248;242m [0m[38;2;230;219;116m../web/dist:/ragflow/web/dist[0m
-[38;2;131;148;150m  73[0m [38;2;248;248;242m    [0m[38;2;249;38;114menv_file[0m[38;2;248;248;242m:[0m[38;2;248;248;242m [0m[38;2;230;219;116m.env[0m
-[38;2;131;148;150m  74[0m [38;2;248;248;242m    [0m[38;2;249;38;114menvironment[0m[38;2;248;248;242m:[0m
-[38;2;131;148;150m  75[0m [38;2;248;248;242m      [0m[38;2;248;248;242m-[0m[38;2;248;248;242m [0m[38;2;230;219;116mTZ=${TIMEZONE}[0m
-[38;2;131;148;150m  76[0m [38;2;248;248;242m      [0m[38;2;248;248;242m-[0m[38;2;248;248;242m [0m[38;2;230;219;116mHF_ENDPOINT=${HF_ENDPOINT-}[0m
-[38;2;131;148;150m  77[0m [38;2;248;248;242m      [0m[38;2;248;248;242m-[0m[38;2;248;248;242m [0m[38;2;230;219;116mMACOS=${MACOS:-1}[0m
-[38;2;131;148;150m  78[0m [38;2;248;248;242m      [0m[38;2;248;248;242m-[0m[38;2;248;248;242m [0m[38;2;230;219;116mLIGHTEN=${LIGHTEN:-1}[0m
-[38;2;131;148;150m  79[0m [38;2;248;248;242m    [0m[38;2;249;38;114mnetworks[0m[38;2;248;248;242m:[0m
-[38;2;131;148;150m  80[0m [38;2;248;248;242m      [0m[38;2;248;248;242m-[0m[38;2;248;248;242m [0m[38;2;230;219;116mragflow[0m
-[38;2;131;148;150m  81[0m [38;2;248;248;242m    [0m[38;2;249;38;114mrestart[0m[38;2;248;248;242m:[0m[38;2;248;248;242m [0m[38;2;230;219;116munless-stopped[0m
-[38;2;131;148;150m  82[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m[38;2;117;113;94m https://docs.docker.com/engine/daemon/prometheus/#create-a-prometheus-configuration[0m
-[38;2;131;148;150m  83[0m [38;2;248;248;242m    [0m[38;2;117;113;94m#[0m[38;2;117;113;94m If you use Docker Desktop, the --add-host flag is optional. This flag ensures that the host's internal IP is exposed to the Prometheus container.[0m
-[38;2;131;148;150m  84[0m [38;2;248;248;242m    [0m[38;2;249;38;114mextra_hosts[0m[38;2;248;248;242m:[0m
-[38;2;131;148;150m  85[0m [38;2;248;248;242m      [0m[38;2;248;248;242m-[0m[38;2;248;248;242m [0m[38;2;230;219;116m"[0m[38;2;230;219;116mhost.docker.internal:host-gateway[0m[38;2;230;219;116m"[0m
-[38;2;131;148;150m  86[0m [38;2;248;248;242m  [0m[38;2;117;113;94m#[0m[38;2;117;113;94m executor:[0m
-[38;2;131;148;150m  87[0m [38;2;248;248;242m  [0m[38;2;117;113;94m#[0m[38;2;117;113;94m   depends_on:[0m
-[38;2;131;148;150m  88[0m [38;2;248;248;242m  [0m[38;2;117;113;94m#[0m[38;2;117;113;94m     mysql:[0m
-[38;2;131;148;150m  89[0m [38;2;248;248;242m  [0m[38;2;117;113;94m#[0m[38;2;117;113;94m       condition: service_healthy[0m
-[38;2;131;148;150m  90[0m [38;2;248;248;242m  [0m[38;2;117;113;94m#[0m[38;2;117;113;94m   image: ${RAGFLOW_IMAGE}[0m
-[38;2;131;148;150m  91[0m [38;2;248;248;242m  [0m[38;2;117;113;94m#[0m[38;2;117;113;94m   volumes:[0m
-[38;2;131;148;150m  92[0m [38;2;248;248;242m  [0m[38;2;117;113;94m#[0m[38;2;117;113;94m     - ./ragflow-logs:/ragflow/logs[0m
-[38;2;131;148;150m  93[0m [38;2;248;248;242m  [0m[38;2;117;113;94m#[0m[38;2;117;113;94m     - ./nginx/ragflow.conf:/etc/nginx/conf.d/ragflow.conf[0m
-[38;2;131;148;150m  94[0m [38;2;248;248;242m  [0m[38;2;117;113;94m#[0m[38;2;117;113;94m   env_file: .env[0m
-[38;2;131;148;150m  95[0m [38;2;248;248;242m  [0m[38;2;117;113;94m#[0m[38;2;117;113;94m   entrypoint: "/ragflow/entrypoint_task_executor.sh 1 3"[0m
-[38;2;131;148;150m  96[0m [38;2;248;248;242m  [0m[38;2;117;113;94m#[0m[38;2;117;113;94m   networks:[0m
-[38;2;131;148;150m  97[0m [38;2;248;248;242m  [0m[38;2;117;113;94m#[0m[38;2;117;113;94m     - ragflow[0m
-[38;2;131;148;150m  98[0m [38;2;248;248;242m  [0m[38;2;117;113;94m#[0m[38;2;117;113;94m   restart: unless-stopped[0m
-[38;2;131;148;150m  99[0m [38;2;248;248;242m  [0m[38;2;117;113;94m#[0m[38;2;117;113;94m   # https://docs.docker.com/engine/daemon/prometheus/#create-a-prometheus-configuration[0m
-[38;2;131;148;150m 100[0m [38;2;248;248;242m  [0m[38;2;117;113;94m#[0m[38;2;117;113;94m   # If you're using Docker Desktop, the --add-host flag is optional. This flag makes sure that the host's internal IP gets exposed to the Prometheus container.[0m
-[38;2;131;148;150m 101[0m [38;2;248;248;242m  [0m[38;2;117;113;94m#[0m[38;2;117;113;94m   extra_hosts:[0m
-[38;2;131;148;150m 102[0m [38;2;248;248;242m  [0m[38;2;117;113;94m#[0m[38;2;117;113;94m     - "host.docker.internal:host-gateway"[0m
+include:
+  - ./docker-compose-base.yml
+
+# macOS ARM64 Build Configuration
+# This file is specifically configured for native ARM64 builds on Apple Silicon
+# Key differences from docker-compose.yml:
+# 1. Uses `build:` instead of `image:` to compile from source
+# 2. Platform constraint removed for native ARM64 support
+# 3. MACOS environment variable set
+
+services:
+  ragflow:
+    # Removed platform constraint to allow native ARM64 build on Apple Silicon
+    # platform: linux/amd64
+    #
+    # Pre-built image mode (recommended — no 30-min local build):
+    #   1. Set RAGFLOW_ARM64_IMAGE=ghcr.io/OWNER/ragflow:vX.Y.Z-arm64 in .env
+    #   2. docker-compose -f docker-compose-macos.yml pull ragflow
+    #   3. docker-compose -f docker-compose-macos.yml up -d
+    #
+    # Local build mode (fallback):
+    #   Comment out RAGFLOW_ARM64_IMAGE in .env, then:
+    #   docker-compose -f docker-compose-macos.yml up -d --build
+    image: ${RAGFLOW_ARM64_IMAGE:-ragflow-macos-arm64:latest}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    build:
+      context: ../
+      dockerfile: Dockerfile
+    # Example configuration to set up an MCP server:
+    # command:
+    #   - --enable-mcpserver
+    #   - --mcp-host=0.0.0.0
+    #   - --mcp-port=9382
+    #   - --mcp-base-url=http://127.0.0.1:9380
+    #   - --mcp-script-path=/ragflow/mcp/server/server.py
+    #   - --mcp-mode=self-host
+    #   - --mcp-host-api-key=ragflow-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    # Optional transport flags for MCP (customize if needed).
+    # Host mode need to combined with --no-transport-streamable-http-enabled flag, namely, host+streamable-http is not supported yet.
+    # The following are enabled by default unless explicitly disabled with --no-<flag>.
+    #   - --no-transport-sse-enabled # Disable legacy SSE endpoints (/sse and /messages/)
+    #   - --no-transport-streamable-http-enabled #  Disable Streamable HTTP transport (/mcp endpoint)
+    #   - --no-json-response # Disable JSON response mode in Streamable HTTP transport (instead of SSE over HTTP)
+
+    # Example configration to start Admin server:
+    command:
+      - --enable-adminserver
+    container_name: ragflow-server
+    ports:
+      - ${SVR_HTTP_PORT}:9380
+      - ${ADMIN_SVR_HTTP_PORT}:9381
+      - 80:80
+      - 443:443
+      - 5678:5678
+      - 5679:5679
+      - 9382:9382 # entry for MCP (host_port:docker_port). The docker_port must match the value you set for `mcp-port` above.
+      - ${GO_ADMIN_PORT:-9383}:9383  # Go admin service (v0.25.1+)
+      - ${GO_HTTP_PORT:-9384}:9384   # Go HTTP service (v0.25.1+)
+    volumes:
+      - ./ragflow-logs:/ragflow/logs
+      - ./nginx/ragflow.conf:/etc/nginx/conf.d/ragflow.conf
+      - ./nginx/proxy.conf:/etc/nginx/proxy.conf
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ../history_data_agent:/ragflow/history_data_agent
+      - ./service_conf.yaml.template:/ragflow/conf/service_conf.yaml.template
+      - ./entrypoint.sh:/ragflow/entrypoint.sh
+      # Custom frontend build — overrides image's built-in web/dist.
+      # IMPORTANT: web/src must match the backend version before building!
+      # Build with: cd web && npm run build
+      - ../web/dist:/ragflow/web/dist
+    env_file: .env
+    environment:
+      - TZ=${TIMEZONE}
+      - HF_ENDPOINT=${HF_ENDPOINT-}
+      - MACOS=${MACOS:-1}
+      - LIGHTEN=${LIGHTEN:-1}
+    networks:
+      - ragflow
+    restart: unless-stopped
+    # https://docs.docker.com/engine/daemon/prometheus/#create-a-prometheus-configuration
+    # If you use Docker Desktop, the --add-host flag is optional. This flag ensures that the host's internal IP is exposed to the Prometheus container.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+  # executor:
+  #   depends_on:
+  #     mysql:
+  #       condition: service_healthy
+  #   image: ${RAGFLOW_IMAGE}
+  #   volumes:
+  #     - ./ragflow-logs:/ragflow/logs
+  #     - ./nginx/ragflow.conf:/etc/nginx/conf.d/ragflow.conf
+  #   env_file: .env
+  #   entrypoint: "/ragflow/entrypoint_task_executor.sh 1 3"
+  #   networks:
+  #     - ragflow
+  #   restart: unless-stopped
+  #   # https://docs.docker.com/engine/daemon/prometheus/#create-a-prometheus-configuration
+  #   # If you're using Docker Desktop, the --add-host flag is optional. This flag makes sure that the host's internal IP gets exposed to the Prometheus container.
+  #   extra_hosts:
+  #     - "host.docker.internal:host-gateway"
