@@ -19,10 +19,11 @@ import { Inspector } from 'react-dev-inspector';
 import ReactDOM from 'react-dom/client';
 import '../tailwind.css';
 import App from './app';
+import { loadBranding } from './branding';
 import './global.less';
 import { initLanguage } from './locales/config';
 
-initLanguage().then(() => {
+Promise.all([initLanguage(), loadBranding()]).then(() => {
   ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
       <Inspector keys={['alt', 'c']} />

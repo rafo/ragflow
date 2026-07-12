@@ -14,6 +14,7 @@
  *  limitations under the License.
  */
 
+import { getBranding } from '@/branding';
 import CopyToClipboard from '@/components/copy-to-clipboard';
 import { SelectWithSearch } from '@/components/originui/select-with-search';
 import { Button, ButtonLoading } from '@/components/ui/button';
@@ -436,13 +437,15 @@ window.addEventListener('message',e=>{
                       name="widgetFooterText"
                       label="Footer text"
                     >
-                      <Input placeholder="Powered by RAGFlow"></Input>
+                      <Input
+                        placeholder={`Powered by ${getBranding().appName}`}
+                      ></Input>
                     </RAGFlowFormItem>
                     <RAGFlowFormItem
                       name="widgetFooterLink"
                       label="Footer redirect link"
                     >
-                      <Input placeholder="https://ragflow.io"></Input>
+                      <Input placeholder="https://example.com"></Input>
                     </RAGFlowFormItem>
                     <FormField
                       control={form.control}

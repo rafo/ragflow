@@ -1,3 +1,5 @@
+import { getBranding } from '@/branding';
+import { Fragment } from 'react';
 import { useTranslation } from 'react-i18next';
 
 function FooterDivider() {
@@ -37,35 +39,33 @@ type MobileMenuFooterProps = {
 export function MobileMenuFooter({ onClose }: MobileMenuFooterProps) {
   const { t } = useTranslation();
 
+  const { links } = getBranding();
+  const footerLinks = [
+    { key: 'discord', href: links.discord, label: t('header.discord') },
+    { key: 'github', href: links.github, label: t('header.github') },
+    { key: 'help', href: links.help, label: t('header.help') },
+  ].filter((x): x is typeof x & { href: string } => Boolean(x.href));
+
+  if (footerLinks.length === 0) {
+    return null;
+  }
+
   return (
     <div className="shrink-0 border-t border-border-button px-4 py-4">
       <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-sm">
-        <FooterLink
-          href="https://discord.com/invite/NjYzJD3GM3"
-          target="_blank"
-          rel="noreferrer noopener"
-          onClick={onClose}
-        >
-          {t('header.discord')}
-        </FooterLink>
-        <FooterDivider />
-        <FooterLink
-          href="https://github.com/infiniflow/ragflow"
-          target="_blank"
-          rel="noreferrer noopener"
-          onClick={onClose}
-        >
-          {t('header.github')}
-        </FooterLink>
-        <FooterDivider />
-        <FooterLink
-          href="https://ragflow.io/docs/dev/category/user-guides"
-          target="_blank"
-          rel="noreferrer noopener"
-          onClick={onClose}
-        >
-          {t('header.help')}
-        </FooterLink>
+        {footerLinks.map((link, index) => (
+          <Fragment key={link.key}>
+            {index > 0 && <FooterDivider />}
+            <FooterLink
+              href={link.href}
+              target="_blank"
+              rel="noreferrer noopener"
+              onClick={onClose}
+            >
+              {link.label}
+            </FooterLink>
+          </Fragment>
+        ))}
       </div>
     </div>
   );

@@ -13,6 +13,7 @@ import {
   LucideZap,
 } from 'lucide-react';
 
+import { getBranding } from '@/branding';
 import { Button } from '@/components/ui/button';
 import { useEnterpriseAdminNav } from '@/ee/pages/admin/layouts/navigation-private';
 import { cn } from '@/lib/utils';
@@ -105,7 +106,11 @@ const AdminNavigationLayout = () => {
     <main className="w-screen h-screen flex flex-row px-6 pt-12 pb-6 dark:*:focus-visible:ring-white">
       <aside className="w-72 mr-6 flex flex-col gap-6">
         <div className="flex items-center mb-6">
-          <img className="size-8 mr-5" src="/logo.svg" alt="logo" />
+          <img
+            className="size-8 mr-5"
+            src={getBranding().logoUrl}
+            alt="logo"
+          />
           <span className="text-xl font-bold">{t('admin.title')}</span>
         </div>
 

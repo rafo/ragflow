@@ -1,0 +1,29 @@
+# branding.toml — zentrale White-Label-Optionen / central white-label options
+#
+# Diese Datei steuert das komplette Branding des Frontends. Sie wird beim
+# App-Start per HTTP geladen (/branding.toml) und kann in Deployments per
+# Docker-Volume über /ragflow/web/dist/branding.toml gemountet werden —
+# ohne Rebuild. Siehe docker/branding/BRANDING.md.
+
+# Produktname — ersetzt "RAGFlow" überall im UI (auch in Übersetzungen)
+appName = "RE3"
+
+# Browser-Tab-Titel
+pageTitle = "RE3"
+
+# Pfade relativ zum Web-Root; eigene Assets nach /branding/ legen
+faviconUrl = "/branding/logo.png"
+logoUrl = "/branding/logo.png"
+
+# [von, zu]-Paare für Laufzeit-Textersetzung in allen UI-Sprachen (case-sensitiv)
+i18nReplacements = [["RAGFlow", "RE3"]]
+
+[links]
+# Fehlender/auskommentierter Eintrag = Element wird ausgeblendet.
+# help = "https://docs.re3.example"
+# discord = "https://discord.com/invite/..."
+# github = "https://github.com/..."
+
+[colors]
+# Optionale CSS-Custom-Property-Overrides auf :root, z.B.:
+# "--primary" = "210 80% 40%"

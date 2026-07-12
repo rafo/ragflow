@@ -14,6 +14,7 @@
  *  limitations under the License.
  */
 
+import { getBranding } from '@/branding';
 import { useFetchTokenListBeforeOtherStep } from '@/components/embed-dialog/use-show-embed-dialog';
 import { Button } from '@/components/ui/button';
 import { SharedFrom } from '@/constants/chat';
@@ -71,7 +72,7 @@ export function RAGFlowLogo({
           'text-4xl font-bold bg-gradient-to-l from-[#40EBE3] to-[#4A51FF] bg-clip-text',
         )}
       >
-        RAGFlow
+        {getBranding().appName}
       </h1>
       {showEmbedIcon && <EmbedIcon></EmbedIcon>}
     </div>
