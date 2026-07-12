@@ -14,6 +14,7 @@
  *  limitations under the License.
  */
 
+import { getBranding } from '@/branding';
 import { FileUploader } from '@/components/file-uploader';
 import { RAGFlowFormItem } from '@/components/ragflow-form';
 import { Button } from '@/components/ui/button';
@@ -662,7 +663,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
       );
 
       // 4. Upload to RAGFlow
-      setGitProgress('Uploading to RAGFlow...');
+      setGitProgress(`Uploading to ${getBranding().appName}...`);
       const skillName =
         validation.name || repo.toLowerCase().replace(/[^a-z0-9_-]/g, '-');
 

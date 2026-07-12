@@ -1,3 +1,4 @@
+import { brandPostProcessor } from '@/branding/i18n-brand-post-processor';
 import { LanguageAbbreviation } from '@/constants/common';
 import storage from '@/utils/authorization-util';
 import dayjs from 'dayjs';
@@ -63,6 +64,7 @@ const updateDocumentLocale = (lng: string) => {
 i18n
   .use(initReactI18next)
   .use(LanguageDetector)
+  .use(brandPostProcessor)
   .init({
     detection: {
       lookupLocalStorage: 'lng',
@@ -75,6 +77,7 @@ i18n
     interpolation: {
       escapeValue: false,
     },
+    postProcess: 'brand',
   });
 
 export const loadLanguageAsync = async (lng: string): Promise<void> => {

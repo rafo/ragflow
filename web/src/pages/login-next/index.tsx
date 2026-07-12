@@ -1,3 +1,4 @@
+import { getBranding } from '@/branding';
 import SvgIcon from '@/components/svg-icon';
 import { useAuth } from '@/hooks/auth-hooks';
 import {
@@ -380,12 +381,14 @@ const Login = () => {
           <div className="flex items-center mb-4 w-full pl-10 pt-10 ">
             <div className="w-12 h-12 p-2 rounded-lg flex items-center justify-center mr-3">
               <img
-                src={'/logo.svg'}
+                src={getBranding().logoUrl}
                 alt="logo"
                 className="size-8 mr-[12] cursor-pointer"
               />
             </div>
-            <div className="text-xl font-bold self-center">RAGFlow</div>
+            <div className="text-xl font-bold self-center">
+              {getBranding().appName}
+            </div>
           </div>
           <h1 className="text-[36px] font-medium  text-center mb-2">
             {t('title')}

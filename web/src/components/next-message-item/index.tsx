@@ -14,6 +14,7 @@
  *  limitations under the License.
  */
 
+import { getBranding } from '@/branding';
 import { MessageType } from '@/constants/chat';
 import {
   IMessage,
@@ -201,7 +202,7 @@ function MessageItem({
           {visibleAvatar &&
             (item.role === MessageType.User ? (
               <RAGFlowAvatar
-                avatar={avatar ?? '/logo.svg'}
+                avatar={avatar ?? getBranding().logoUrl}
                 name={nickname}
                 isPerson
               />

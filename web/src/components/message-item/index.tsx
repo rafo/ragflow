@@ -14,6 +14,7 @@
  *  limitations under the License.
  */
 
+import { getBranding } from '@/branding';
 import { MessageType } from '@/constants/chat';
 import { IRegenerateMessage, IRemoveMessageById } from '@/hooks/logic-hooks';
 import {
@@ -112,7 +113,7 @@ const MessageItem = ({
             (item.role === MessageType.User ? (
               <RAGFlowAvatar
                 className="size-10"
-                avatar={avatar ?? '/logo.svg'}
+                avatar={avatar ?? getBranding().logoUrl}
                 isPerson
                 name={nickname}
               />
