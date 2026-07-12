@@ -17,9 +17,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'RAGFlow upstream version tag to build (e.g. v0.25.6)'
+        description: 'RAGFlow upstream version tag to build (e.g. v0.26.4)'
         required: true
-        default: 'v0.25.6'
+        default: 'v0.26.4'
         type: string
       dry_run:
         description: 'Build only — skip push to registry (for testing)'

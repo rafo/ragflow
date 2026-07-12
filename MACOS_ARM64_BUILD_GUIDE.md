@@ -107,19 +107,19 @@ After the first workflow run:
 
 1. Go to `https://github.com/YOUR_USERNAME/ragflow/actions`
 2. Select **Build ARM64 Docker Image**
-3. Click **Run workflow** and enter the version (e.g. `v0.25.6`)
+3. Click **Run workflow** and enter the version (e.g. `v0.26.4`)
 4. Wait ~30–40 minutes for the image to be built and pushed
 
 The image will be available at:
 ```
-ghcr.io/YOUR_USERNAME/ragflow:v0.25.6-arm64
+ghcr.io/YOUR_USERNAME/ragflow:v0.26.4-arm64
 ```
 
 ### Using the Pre-Built Image Locally
 
 ```bash
 # 1. Set the image in docker/.env (replace YOUR_USERNAME)
-# RAGFLOW_ARM64_IMAGE=ghcr.io/YOUR_USERNAME/ragflow:v0.25.6-arm64
+# RAGFLOW_ARM64_IMAGE=ghcr.io/YOUR_USERNAME/ragflow:v0.26.4-arm64
 
 # 2. Pull
 docker-compose -f docker-compose-macos.yml pull ragflow
@@ -190,7 +190,7 @@ Open http://localhost in your browser (Nginx on port 80 serves the web UI).
 
 ## Architecture
 
-RAGFlow v0.25.6 includes these services:
+RAGFlow v0.26.4 includes these services:
 
 - **ragflow-server**: Main application (Flask API + Nginx)
 - **mysql**: Metadata storage
@@ -198,7 +198,7 @@ RAGFlow v0.25.6 includes these services:
 - **minio**: Object storage for documents
 - **es01** (or **infinity**): Vector database for embeddings
 
-### Features (v0.25.6)
+### Features (v0.26.4)
 
 - **REST API standardization**: All web API endpoints migrated to RESTful conventions
 - **PDF improvements**: OpenDataLoader as new PDF backend; lazy/chunked parsing for large PDFs (>50 pages)
@@ -620,7 +620,7 @@ A successful installation shows:
 ---
 
 **Last Updated**: May 2026
-**RAGFlow Version**: v0.25.6
+**RAGFlow Version**: v0.26.4
 **Tested On**: macOS (Apple Silicon), Colima, Docker 27.4.0
 **Local Build Time**: ~20-30 minutes (initial), ~2-5 minutes (cached)
 **GitHub Actions Build Time**: ~30-40 minutes (first build), faster with GHA cache
