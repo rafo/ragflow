@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = "==3.13.*"
 resolution-markers = [
     "sys_platform == 'darwin'",
@@ -976,7 +976,7 @@ wheels = [
 
 [[package]]
 name = "ragflow"
-version = "1.0.0rc1"
+version = "1.0.0rc2"
 source = { virtual = "." }
 dependencies = [
     { name = "aiohttp" },

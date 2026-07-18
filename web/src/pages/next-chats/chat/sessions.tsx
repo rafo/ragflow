@@ -1,6 +1,7 @@
 import { ConfirmDeleteDialog } from '@/components/confirm-delete-dialog';
 import EmbedDialog from '@/components/embed-dialog';
 import { useShowEmbedModal } from '@/components/embed-dialog/use-show-embed-dialog';
+import { useNavItemVisibility } from '@/hooks/use-nav-visibility';
 import { MoreButton } from '@/components/more-button';
 import { RAGFlowAvatar } from '@/components/ragflow-avatar';
 import { Button } from '@/components/ui/button';
@@ -42,6 +43,8 @@ type SessionProps = Pick<
 >;
 export function Sessions({ handleConversationCardClick }: SessionProps) {
   const { t } = useTranslation();
+  // RE3: embedding/sharing is an admin capability
+  const { isSuperuser } = useNavItemVisibility();
   const {
     list: conversationList,
     addTemporaryConversation,
@@ -208,27 +211,32 @@ export function Sessions({ handleConversationCardClick }: SessionProps) {
           <span className="flex-1 truncate">{data.name}</span>
         </div>
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              onClick={showEmbedModal}
-              size="icon-xs"
-              data-testid="chat-detail-embed-open"
-            >
-              <LucideSend />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>{t('common.embedIntoSite')}</TooltipContent>
-        </Tooltip>
+        {/* RE3: embedding/sharing is an admin capability */}
+        {isSuperuser && (
+          <>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={showEmbedModal}
+                  size="icon-xs"
+                  data-testid="chat-detail-embed-open"
+                >
+                  <LucideSend />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('common.embedIntoSite')}</TooltipContent>
+            </Tooltip>
 
-        <EmbedDialog
-          visible={embedVisible}
-          hideModal={hideEmbedModal}
-          token={id!}
-          from={SharedFrom.Chat}
-          beta={beta}
-          isAgent={false}
-        />
+            <EmbedDialog
+              visible={embedVisible}
+              hideModal={hideEmbedModal}
+              token={id!}
+              from={SharedFrom.Chat}
+              beta={beta}
+              isAgent={false}
+            />
+          </>
+        )}
 
         <Button
           variant="transparent"

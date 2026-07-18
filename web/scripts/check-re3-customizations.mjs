@@ -90,6 +90,36 @@ const anchors = [
     purpose: 'settings default route is Profile, not Data sources',
   },
   {
+    file: 'src/pages/next-search/ragflow-logo.tsx',
+    needles: ['isSuperuser'],
+    purpose: 'search share/embed button is superuser-only',
+  },
+  {
+    file: 'src/pages/next-search/index.tsx',
+    needles: ['isSuperuser'],
+    purpose: 'search settings gear is superuser-only',
+  },
+  {
+    file: 'src/pages/next-chats/chat/sessions.tsx',
+    needles: ['isSuperuser'],
+    purpose: 'chat share/embed button is superuser-only',
+  },
+  {
+    file: 'src/pages/next-chats/chat/index.tsx',
+    needles: ['isSuperuser'],
+    purpose: 'chat settings panel is superuser-only',
+  },
+  {
+    file: 'src/pages/next-chats/index.tsx',
+    needles: ['isSuperuser'],
+    purpose: 'chat create button + card menus are superuser-only',
+  },
+  {
+    file: 'src/pages/next-searches/index.tsx',
+    needles: ['isSuperuser'],
+    purpose: 'search create button + card menus are superuser-only',
+  },
+  {
     file: 'public/branding.toml',
     needles: ['appName', 'userNavItems', 'userSettingItems'],
     purpose: 'baked-in default branding options',

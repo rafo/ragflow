@@ -5,6 +5,7 @@ import {
   useFetchSessionManually,
   useGetChatSearchParams,
 } from '@/hooks/use-chat-request';
+import { useNavItemVisibility } from '@/hooks/use-nav-visibility';
 import { IClientConversation } from '@/interfaces/database/chat';
 import { RootLayoutContainer } from '@/layouts/root-layout';
 import { cn } from '@/lib/utils';
@@ -22,6 +23,8 @@ import { useSwitchDebugMode } from './use-switch-debug-mode';
 
 export default function Chat() {
   const { t } = useTranslation();
+  // RE3: chat configuration is an admin capability
+  const { isSuperuser } = useNavItemVisibility();
   const [currentConversation, setCurrentConversation] =
     useState<IClientConversation>({} as IClientConversation);
 
@@ -135,7 +138,9 @@ export default function Chat() {
                 </CardContent>
               </Card>
 
-              <ChatSettings hasSingleChatBox={hasSingleChatBox}></ChatSettings>
+              {isSuperuser && (
+                <ChatSettings hasSingleChatBox={hasSingleChatBox}></ChatSettings>
+              )}
             </CardContent>
           </Card>
         </article>

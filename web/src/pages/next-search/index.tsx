@@ -15,6 +15,7 @@
  */
 
 import { Button } from '@/components/ui/button';
+import { useNavItemVisibility } from '@/hooks/use-nav-visibility';
 import { useFetchUserInfo } from '@/hooks/use-user-setting-request';
 import { Settings } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -35,6 +36,8 @@ export default function SearchPage() {
   const [openSetting, setOpenSetting] = useState(false);
   const [searchText, setSearchText] = useState('');
   const { data: userInfo } = useFetchUserInfo();
+  // RE3: search configuration is an admin capability
+  const { isSuperuser } = useNavItemVisibility();
   const { openSetting: checkOpenSetting } = useCheckSettings(
     SearchData as ISearchAppDetailProps,
   );
@@ -78,7 +81,7 @@ export default function SearchPage() {
             </div>
           )}
         </div>
-        {openSetting && (
+        {openSetting && isSuperuser && (
           <SearchSetting
             open={openSetting}
             setOpen={setOpenSetting}
@@ -88,13 +91,15 @@ export default function SearchPage() {
         )}
       </div>
 
-      <Button
-        variant="transparent"
-        className="bg-bg-card ml-5 shrink-0"
-        onClick={() => setOpenSetting(!openSetting)}
-      >
-        <Settings className="text-text-secondary" />
-      </Button>
+      {isSuperuser && (
+        <Button
+          variant="transparent"
+          className="bg-bg-card ml-5 shrink-0"
+          onClick={() => setOpenSetting(!openSetting)}
+        >
+          <Settings className="text-text-secondary" />
+        </Button>
+      )}
     </section>
   );
 }
