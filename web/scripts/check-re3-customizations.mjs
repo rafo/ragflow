@@ -85,6 +85,11 @@ const anchors = [
     purpose: 'login page logo/app name from branding',
   },
   {
+    file: 'src/routes.tsx',
+    needles: ['Navigate to="/user-setting/profile"'],
+    purpose: 'settings default route is Profile, not Data sources',
+  },
+  {
     file: 'public/branding.toml',
     needles: ['appName', 'userNavItems', 'userSettingItems'],
     purpose: 'baked-in default branding options',
