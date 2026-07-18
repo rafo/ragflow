@@ -51,8 +51,18 @@ const anchors = [
   },
   {
     file: 'src/pages/home/index.tsx',
-    needles: ['isNavItemVisible'],
-    purpose: 'home page sections gated for non-superusers',
+    needles: ['isNavItemVisible', 'PrototypeHome'],
+    purpose: 'home page: prototype home for testers, gated sections otherwise',
+  },
+  {
+    file: 'src/pages/home/prototype-home.tsx',
+    needles: ['/branding/home.md'],
+    purpose: 'tester home rendered from mountable markdown',
+  },
+  {
+    file: 'public/branding/home.md',
+    needles: ['Research Preview'],
+    purpose: 'baked-in default tester home content',
   },
   {
     file: 'src/pages/home/applications.tsx',
