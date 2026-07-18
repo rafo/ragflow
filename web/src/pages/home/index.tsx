@@ -3,9 +3,17 @@ import { PageContainer } from '@/layouts/components/page-container';
 import { Applications } from './applications';
 import { NextBanner } from './banner';
 import { Datasets } from './datasets';
+import { PrototypeHome, usePrototypeHomeContent } from './prototype-home';
 
 const Home = () => {
-  const { isNavItemVisible } = useNavItemVisibility();
+  const { isNavItemVisible, isSuperuser } = useNavItemVisibility();
+  const { content } = usePrototypeHomeContent(!isSuperuser);
+
+  // Testers get the prototype status/help page; superusers (and any
+  // deployment without a home.md) keep the upstream home.
+  if (!isSuperuser && content) {
+    return <PrototypeHome content={content} />;
+  }
 
   return (
     <PageContainer>
