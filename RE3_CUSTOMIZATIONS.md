@@ -50,7 +50,8 @@ Alle Quellcode-Anpassungen stecken im Commit-Set „RE3 white-label branding"
 | `src/hooks/use-nav-visibility.ts` | Rollen-Whitelist-Hook (`isNavItemVisible`, `isSettingItemVisible`) |
 | `src/layouts/components/global-navbar.tsx` | Navbar gefiltert für Nicht-Superuser; Logo aus Branding |
 | `src/layouts/components/header.tsx` | Discord/GitHub-Icons nur wenn `brand.links.*` gesetzt (beide Blöcke: sichtbar + Mess-Block!) |
-| `src/pages/home/index.tsx` + `applications.tsx` | Home-Sektionen/App-Tabs gefiltert |
+| `src/pages/home/index.tsx` + `applications.tsx` | Home-Sektionen/App-Tabs gefiltert; Nicht-Superuser bekommen die Prototyp-Startseite |
+| `src/pages/home/prototype-home.tsx` | Testkunden-Home, rendert das mountbare `/branding/home.md` (Inhalte ohne Rebuild änderbar) |
 | `src/pages/user-setting/sidebar/index.tsx` | Profil-Sidebar gefiltert (`userSettingItems`) |
 | `src/pages/user-setting/setting-team/index.tsx` | „Invite member" nur für Superuser |
 | `src/pages/login-next/index.tsx` | Login: Logo/Name aus Branding |
