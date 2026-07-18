@@ -1,0 +1,38 @@
+name: RE3 Customization Checks
+
+# Fails loudly when a RAGFlow upgrade (cherry-pick) has lost one of our
+# white-label/UI customizations. See RE3_CUSTOMIZATIONS.md.
+
+on:
+  push:
+    branches:
+      - 'macos-arm64-*'
+    paths:
+      - 'web/**'
+      - '.github/workflows/re3-checks.yml'
+  workflow_dispatch:
+
+jobs:
+  re3-checks:
+    name: Anchors + branding tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Anchor check (no install needed)
+        run: cd web && node scripts/check-re3-customizations.mjs
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install dependencies
+        run: cd web && npm ci
+
+      - name: RE3 branding + role-visibility tests
+        run: |
+          cd web && npx jest src/branding \
+            src/hooks/__tests__/use-nav-visibility.test.tsx --no-coverage

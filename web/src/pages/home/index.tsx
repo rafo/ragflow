@@ -1,9 +1,12 @@
+import { useNavItemVisibility } from '@/hooks/use-nav-visibility';
 import { PageContainer } from '@/layouts/components/page-container';
 import { Applications } from './applications';
 import { NextBanner } from './banner';
 import { Datasets } from './datasets';
 
 const Home = () => {
+  const { isNavItemVisible } = useNavItemVisibility();
+
   return (
     <PageContainer>
       <article>
@@ -11,7 +14,7 @@ const Home = () => {
           <NextBanner />
         </header>
 
-        <Datasets />
+        {isNavItemVisible('datasets') && <Datasets />}
         <Applications />
       </article>
     </PageContainer>

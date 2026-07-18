@@ -30,6 +30,8 @@ Config-Edit — kein Rebuild.
 | `faviconUrl` | Pfad zum Favicon (relativ zum Web-Root) |
 | `logoUrl` | Pfad zum Logo (Header, Login, Admin, Chat-Avatare, Embed) |
 | `i18nReplacements` | Liste von `[von, zu]`-Paaren, case-sensitive, laufzeit-angewandt auf jede Übersetzung |
+| `userNavItems` | Menüpunkte für Nicht-Superuser (`home`, `datasets`, `chat`, `search`, `agent`, `memory`, `files`); Superuser sehen immer alles. Reine UI-Ausblendung in Navbar + Home, keine Rechteverwaltung |
+| `userSettingItems` | Profil-/Settings-Menüpunkte für Nicht-Superuser (`data-sources`, `chat-channels`, `model-providers`, `mcp`, `team`, `profile`, `api`). Der Team-„Invite member"-Button ist für Nicht-Superuser immer ausgeblendet |
 | `[links]` `help`/`discord`/`github` | URLs für die Header-/Menü-Icons; fehlender Eintrag blendet das Element aus |
 | `[colors]` | CSS-Custom-Property-Overrides auf `:root`, z.B. `"--primary" = "210 80% 40%"` |
 

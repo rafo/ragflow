@@ -7,6 +7,7 @@ import { LucideHouse, LucideMenu } from 'lucide-react';
 import { getBranding } from '@/branding';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { useNavItemVisibility } from '@/hooks/use-nav-visibility';
 import { cn } from '@/lib/utils';
 import { Routes } from '@/routes';
 import { supportsCssAnchor } from '@/utils/css-support';
@@ -37,47 +38,56 @@ const MenuItemsIcon = ({
 }) => <HomeIcon imgClass={className} name={name || 'datasets'} width={20} />;
 
 const menuItems = [
-  { path: Routes.Root, name: 'header.home', icon: LucideHouse },
+  { id: 'home', path: Routes.Root, name: 'header.home', icon: LucideHouse },
   {
-    path: Routes.Datasets,
+    id: 'datasets', path: Routes.Datasets,
     name: 'header.dataset',
     icon: MenuItemsIcon,
     icon_name: 'datasets',
   },
   {
-    path: Routes.Chats,
+    id: 'chat', path: Routes.Chats,
     name: 'header.chat',
     icon: MenuItemsIcon,
     icon_name: 'chats',
     'data-testid': 'nav-chat',
   },
   {
-    path: Routes.Searches,
+    id: 'search', path: Routes.Searches,
     name: 'header.search',
     icon: MenuItemsIcon,
     icon_name: 'searches',
     'data-testid': 'nav-search',
   },
   {
-    path: Routes.Agents,
+    id: 'agent', path: Routes.Agents,
     name: 'header.flow',
     icon: MenuItemsIcon,
     icon_name: 'agents',
     'data-testid': 'nav-agent',
   },
   {
-    path: Routes.Memories,
+    id: 'memory', path: Routes.Memories,
     name: 'header.memories',
     icon: MenuItemsIcon,
     icon_name: 'memory',
   },
   {
-    path: Routes.Files,
+    id: 'files', path: Routes.Files,
     name: 'header.fileManager',
     icon: MenuItemsIcon,
     icon_name: 'file',
   },
 ];
+
+function useVisibleMenuItems() {
+  const { isNavItemVisible } = useNavItemVisibility();
+
+  return useMemo(
+    () => menuItems.filter((item) => isNavItemVisible(item.id)),
+    [isNavItemVisible],
+  );
+}
 
 function useActivePath() {
   const { pathname } = useLocation();
@@ -96,24 +106,25 @@ function useActivePath() {
 const DesktopNavbarWithAnchor = () => {
   const { t } = useTranslation();
   const activePath = useActivePath();
+  const visibleMenuItems = useVisibleMenuItems();
   const navbarAnchorNamePrefix = useId().replace(/:/g, '');
 
   const activePathAnchorName = `--${navbarAnchorNamePrefix}${activePath === Routes.Root ? '-root' : activePath.replace('/', '-')}`;
 
   const hasAnyActive = useMemo(
-    () => menuItems.some(({ path }) => path === activePath),
-    [activePath],
+    () => visibleMenuItems.some(({ path }) => path === activePath),
+    [activePath, visibleMenuItems],
   );
 
   return (
     <nav>
       <ul className="relative flex items-center p-1 bg-bg-card rounded-full border border-border-button">
-        {menuItems.map(({ path, name, icon: Icon, ...props }) => {
+        {visibleMenuItems.map(({ id, path, name, icon: Icon, ...props }) => {
           const isActive = path === activePath;
           const anchorName = `--${navbarAnchorNamePrefix}${path === Routes.Root ? '-root' : path.replace('/', '-')}`;
 
           return (
-            <li key={path} className="relative" style={{ anchorName }}>
+            <li key={id} className="relative" style={{ anchorName }}>
               <Link
                 {...props}
                 to={path}
@@ -160,15 +171,16 @@ const DesktopNavbarWithAnchor = () => {
 const DesktopNavbarFallback = () => {
   const { t } = useTranslation();
   const activePath = useActivePath();
+  const visibleMenuItems = useVisibleMenuItems();
 
   return (
     <nav>
       <ul className="flex items-center p-1 bg-bg-card rounded-full border border-border-button">
-        {menuItems.map(({ path, name, icon: Icon, ...props }) => {
+        {visibleMenuItems.map(({ id, path, name, icon: Icon, ...props }) => {
           const isActive = path === activePath;
 
           return (
-            <li key={path}>
+            <li key={id}>
               <Link
                 {...props}
                 to={path}
@@ -245,6 +257,7 @@ type MobileNavbarProps = {
 export function MobileNavbar({ renderFooter }: MobileNavbarProps) {
   const { t } = useTranslation();
   const activePath = useActivePath();
+  const visibleMenuItems = useVisibleMenuItems();
   const [open, setOpen] = useState(false);
 
   const close = () => setOpen(false);
@@ -277,8 +290,8 @@ export function MobileNavbar({ renderFooter }: MobileNavbarProps) {
 
         <nav className="min-h-0 flex-1 overflow-y-auto py-3">
           <ul className="space-y-1">
-            {menuItems.map(({ path, name, icon_name, icon, ...props }) => (
-              <li key={path}>
+            {visibleMenuItems.map(({ id, path, name, icon_name, icon, ...props }) => (
+              <li key={id}>
                 <MobileNavItem
                   {...props}
                   to={path}
