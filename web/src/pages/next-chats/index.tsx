@@ -11,6 +11,7 @@ import { ListDeletionKey } from '@/constants/list-deletion';
 import { useGoToPreviousPageOnEmpty } from '@/hooks/logic-hooks';
 import { useFetchChatList } from '@/hooks/use-chat-request';
 import { buildOwnersFilter } from '@/utils/list-filter-util';
+import { useNavItemVisibility } from '@/hooks/use-nav-visibility';
 import { pick } from 'lodash';
 import { Plus } from 'lucide-react';
 import { useCallback, useEffect, useMemo } from 'react';
@@ -22,6 +23,8 @@ import { useRenameChat } from './hooks/use-rename-chat';
 import { useShowPrivilegeDialog } from '@/ee/pages/next-chats/use-show-privilege-dialog';
 
 export default function ChatList() {
+  // RE3: app creation is an admin capability
+  const { isSuperuser } = useNavItemVisibility();
   const {
     data,
     setPagination,
@@ -145,10 +148,17 @@ export default function ChatList() {
               value={filterValue}
               onChange={handleFilterSubmit}
             >
-              <Button data-testid="create-chat" onClick={handleShowCreateModal}>
-                <Plus className="size-[1em]" />
-                {t('chat.createChat')}
-              </Button>
+              {/* RE3: creating chat apps is an admin capability (tester
+                  tenants have no model providers configured) */}
+              {isSuperuser && (
+                <Button
+                  data-testid="create-chat"
+                  onClick={handleShowCreateModal}
+                >
+                  <Plus className="size-[1em]" />
+                  {t('chat.createChat')}
+                </Button>
+              )}
             </ListFilterBar>
           </header>
 

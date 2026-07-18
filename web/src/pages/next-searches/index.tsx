@@ -26,6 +26,7 @@ import { ListDeletionKey } from '@/constants/list-deletion';
 import { useTranslate } from '@/hooks/common-hooks';
 import { useGoToPreviousPageOnEmpty } from '@/hooks/logic-hooks';
 import { buildOwnersFilter } from '@/utils/list-filter-util';
+import { useNavItemVisibility } from '@/hooks/use-nav-visibility';
 import { pick } from 'lodash';
 import { Plus } from 'lucide-react';
 import { useCallback, useEffect } from 'react';
@@ -35,6 +36,8 @@ import { SearchCard } from './search-card';
 import { useShowPrivilegeDialog } from '@/ee/pages/next-searches/use-show-privilege-dialog';
 
 export default function SearchList() {
+  // RE3: app creation is an admin capability
+  const { isSuperuser } = useNavItemVisibility();
   // const { data } = useFetchFlowList();
   const { t } = useTranslate('search');
   const { t: tc } = useTranslate('common');
@@ -123,13 +126,17 @@ export default function SearchList() {
               onChange={handleFilterSubmit}
               filters={owners}
             >
-              <Button
-                data-testid="create-search"
-                onClick={() => openCreateModalFun()}
-              >
-                <Plus className="size-[1em]" />
-                {t('createSearch')}
-              </Button>
+              {/* RE3: creating search apps is an admin capability (tester
+                  tenants have no model providers configured) */}
+              {isSuperuser && (
+                <Button
+                  data-testid="create-search"
+                  onClick={() => openCreateModalFun()}
+                >
+                  <Plus className="size-[1em]" />
+                  {t('createSearch')}
+                </Button>
+              )}
             </ListFilterBar>
           </header>
 

@@ -16,6 +16,7 @@
 
 import { getBranding } from '@/branding';
 import { useFetchTokenListBeforeOtherStep } from '@/components/embed-dialog/use-show-embed-dialog';
+import { useNavItemVisibility } from '@/hooks/use-nav-visibility';
 import { Button } from '@/components/ui/button';
 import { SharedFrom } from '@/constants/chat';
 import { cn } from '@/lib/utils';
@@ -64,6 +65,9 @@ export function RAGFlowLogo({
   onClick?: React.MouseEventHandler<HTMLHeadingElement>;
   showEmbedIcon?: boolean;
 }) {
+  // RE3: embedding/sharing is an admin capability
+  const { isSuperuser } = useNavItemVisibility();
+
   return (
     <div className="flex gap-4 items-center">
       <h1
@@ -74,7 +78,7 @@ export function RAGFlowLogo({
       >
         {getBranding().appName}
       </h1>
-      {showEmbedIcon && <EmbedIcon></EmbedIcon>}
+      {showEmbedIcon && isSuperuser && <EmbedIcon></EmbedIcon>}
     </div>
   );
 }

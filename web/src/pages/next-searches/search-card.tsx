@@ -18,6 +18,7 @@ import { HomeCard } from '@/components/home-card';
 import { MoreButton } from '@/components/more-button';
 import { SharedBadge } from '@/components/shared-badge';
 import { useNavigatePage } from '@/hooks/logic-hooks/navigate-hooks';
+import { useNavItemVisibility } from '@/hooks/use-nav-visibility';
 import { ISearchAppProps } from './hooks';
 import { SearchDropdown } from './search-dropdown';
 
@@ -32,18 +33,22 @@ export function SearchCard({
   showPrivilegeModal,
 }: IProps) {
   const { navigateToSearch } = useNavigatePage();
+  // RE3: rename/delete are admin capabilities
+  const { isSuperuser } = useNavItemVisibility();
 
   return (
     <HomeCard
       data={data}
       moreDropdown={
-        <SearchDropdown
-          dataset={data}
-          showSearchRenameModal={showSearchRenameModal}
-          showPrivilegeModal={showPrivilegeModal}
-        >
-          <MoreButton></MoreButton>
-        </SearchDropdown>
+        isSuperuser ? (
+          <SearchDropdown
+            dataset={data}
+            showSearchRenameModal={showSearchRenameModal}
+            showPrivilegeModal={showPrivilegeModal}
+          >
+            <MoreButton></MoreButton>
+          </SearchDropdown>
+        ) : undefined
       }
       sharedBadge={<SharedBadge>{data.nickname}</SharedBadge>}
       onClick={navigateToSearch(data?.id)}
