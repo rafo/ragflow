@@ -3,8 +3,9 @@ import { EmptyCardType } from '@/components/empty/constant';
 import { EmptyAppCard } from '@/components/empty/empty';
 import { HomeIcon } from '@/components/svg-icon';
 import { Segmented, SegmentedValue } from '@/components/ui/segmented';
+import { useNavItemVisibility } from '@/hooks/use-nav-visibility';
 import { Routes } from '@/routes';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { Agents } from './agent-list';
@@ -30,6 +31,7 @@ const EmptyTypeMap = {
 export function Applications() {
   const [val, setVal] = useState(Routes.Chats);
   const { t } = useTranslation();
+  const { isNavItemVisible } = useNavItemVisibility();
   const navigate = useNavigate();
   const [listLength, setListLength] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -46,14 +48,21 @@ export function Applications() {
   );
 
   const options = useMemo(
-    () => [
-      { value: Routes.Chats, label: t('header.chat') },
-      { value: Routes.Searches, label: t('header.search') },
-      { value: Routes.Agents, label: t('header.flow') },
-      { value: Routes.Memories, label: t('header.memories') },
-    ],
-    [t],
+    () =>
+      [
+        { id: 'chat', value: Routes.Chats, label: t('header.chat') },
+        { id: 'search', value: Routes.Searches, label: t('header.search') },
+        { id: 'agent', value: Routes.Agents, label: t('header.flow') },
+        { id: 'memory', value: Routes.Memories, label: t('header.memories') },
+      ].filter((option) => isNavItemVisible(option.id)),
+    [t, isNavItemVisible],
   );
+
+  useEffect(() => {
+    if (options.length && !options.some((option) => option.value === val)) {
+      setVal(options[0].value as Routes);
+    }
+  }, [options, val]);
 
   const handleChange = (path: SegmentedValue) => {
     setVal(path as Routes);

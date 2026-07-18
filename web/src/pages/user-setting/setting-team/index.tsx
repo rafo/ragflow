@@ -24,6 +24,7 @@ import { useTranslation } from 'react-i18next';
 
 import Spotlight from '@/components/spotlight';
 import { SearchInput } from '@/components/ui/input';
+import { useNavItemVisibility } from '@/hooks/use-nav-visibility';
 import { UserPlus } from 'lucide-react';
 import { useState } from 'react';
 import { ProfileSettingWrapperCard } from '../components/user-setting-header';
@@ -34,6 +35,7 @@ import UserTable from './user-table';
 
 const UserSettingTeam = () => {
   const { data: userInfo } = useFetchUserInfo();
+  const { isSuperuser } = useNavItemVisibility();
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [searchUser, setSearchUser] = useState('');
@@ -77,10 +79,12 @@ const UserSettingTeam = () => {
                 value={searchUser}
                 onChange={(e) => setSearchUser(e.target.value)}
               />
-              <Button onClick={showAddingTenantModal}>
-                <UserPlus className=" h-4 w-4" />
-                {t('setting.invite')}
-              </Button>
+              {isSuperuser && (
+                <Button onClick={showAddingTenantModal}>
+                  <UserPlus className=" h-4 w-4" />
+                  {t('setting.invite')}
+                </Button>
+              )}
             </section>
           </CardHeader>
 

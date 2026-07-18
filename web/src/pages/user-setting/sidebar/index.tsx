@@ -24,6 +24,7 @@ import {
   useFetchSystemVersion,
   useFetchUserInfo,
 } from '@/hooks/use-user-setting-request';
+import { useNavItemVisibility } from '@/hooks/use-nav-visibility';
 import { cn } from '@/lib/utils';
 import { Routes } from '@/routes';
 import { TFunction } from 'i18next';
@@ -42,37 +43,44 @@ import { useHandleMenuClick } from './hooks';
 
 const menuItems = (t: TFunction) => [
   {
+    id: 'model-providers',
     icon: <LucideBox className="size-[1em]" />,
     label: t('setting.model'),
     key: Routes.Model,
     'data-testid': 'settings-nav-model-providers',
   },
   {
+    id: 'data-sources',
     icon: <LucideServer className="size-[1em]" />,
     label: t('setting.dataSources'),
     key: Routes.DataSource,
   },
   {
+    id: 'chat-channels',
     icon: <LucideMessagesSquare className="size-[1em]" />,
     label: t('setting.chatChannels'),
     key: Routes.ChatChannel,
   },
   {
+    id: 'mcp',
     icon: <IconFontFill name="mcp" className="size-[1em]" />,
     label: 'MCP',
     key: Routes.Mcp,
   },
   {
+    id: 'team',
     icon: <LucideUsers className="size-[1em]" />,
     label: t('setting.team'),
     key: Routes.Team,
   },
   {
+    id: 'profile',
     icon: <LucideUser className="size-[1em]" />,
     label: t('setting.profile'),
     key: Routes.Profile,
   },
   {
+    id: 'api',
     icon: <LucideUnplug className="size-[1em]" />,
     label: t('setting.api'),
     key: Routes.Api,
@@ -81,6 +89,7 @@ const menuItems = (t: TFunction) => [
 
 export function SideBar() {
   const { data: userInfo } = useFetchUserInfo();
+  const { isSettingItemVisible } = useNavItemVisibility();
   const { handleMenuClick, active: activeItemKey } = useHandleMenuClick();
   const { version, fetchSystemVersion } = useFetchSystemVersion();
   const { t } = useTranslation();
@@ -109,11 +118,13 @@ export function SideBar() {
 
       <nav className="flex-1 overflow-auto mt-4 py-1">
         <ul className="px-2 md:px-6 flex flex-col gap-2 md:gap-5 items-center md:items-stretch">
-          {menuItems(t).map((item) => {
-            const { key, icon, label, ...rest } = item;
+          {menuItems(t)
+            .filter((item) => isSettingItemVisible(item.id))
+            .map((item) => {
+            const { id, key, icon, label, ...rest } = item;
 
             return (
-              <li key={key} className="w-full md:w-auto">
+              <li key={id} className="w-full md:w-auto">
                 <Button
                   {...rest}
                   block
