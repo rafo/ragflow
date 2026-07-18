@@ -54,6 +54,7 @@ Alle Quellcode-Anpassungen stecken im Commit-Set „RE3 white-label branding"
 | `src/pages/home/prototype-home.tsx` | Testkunden-Home, rendert das mountbare `/branding/home.md` (Inhalte ohne Rebuild änderbar) |
 | `src/pages/user-setting/sidebar/index.tsx` | Profil-Sidebar gefiltert (`userSettingItems`) |
 | `src/pages/user-setting/setting-team/index.tsx` | „Invite member" nur für Superuser |
+| `src/routes.tsx` | Default-Route von `/user-setting` = Profile (Upstream: Data sources) |
 | `src/pages/login-next/index.tsx` | Login: Logo/Name aus Branding |
 | weitere Logo-Stellen | Admin-Login, Chat-Avatare, `embed-container.tsx` (siehe `git show` des Branding-Commits) |
 | `package.json` | Dependency `smol-toml`, Script `check:re3` |

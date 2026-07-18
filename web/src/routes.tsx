@@ -279,7 +279,9 @@ const routeConfigOptions = [
         children: [
           {
             path: Routes.UserSetting,
-            element: <Navigate to={`/user-setting/model`} replace />,
+            // RE3: default settings page is the user's profile, not the
+            // admin-facing model providers (hidden for testers anyway).
+            element: <Navigate to="/user-setting/profile" replace />,
           },
           {
             path: `${Routes.UserSetting}/profile`,
