@@ -17,6 +17,7 @@
 import { HomeCard } from '@/components/home-card';
 import { MoreButton } from '@/components/more-button';
 import { useNavigatePage } from '@/hooks/logic-hooks/navigate-hooks';
+import { useNavItemVisibility } from '@/hooks/use-nav-visibility';
 import { ISearchAppProps } from './hooks';
 import { SearchDropdown } from './search-dropdown';
 
@@ -26,17 +27,21 @@ interface IProps {
 }
 export function SearchCard({ data, showSearchRenameModal }: IProps) {
   const { navigateToSearch } = useNavigatePage();
+  // RE3: rename/delete are admin capabilities
+  const { isSuperuser } = useNavItemVisibility();
 
   return (
     <HomeCard
       data={data}
       moreDropdown={
-        <SearchDropdown
-          dataset={data}
-          showSearchRenameModal={showSearchRenameModal}
-        >
-          <MoreButton></MoreButton>
-        </SearchDropdown>
+        isSuperuser ? (
+          <SearchDropdown
+            dataset={data}
+            showSearchRenameModal={showSearchRenameModal}
+          >
+            <MoreButton></MoreButton>
+          </SearchDropdown>
+        ) : undefined
       }
       onClick={navigateToSearch(data?.id)}
     />
