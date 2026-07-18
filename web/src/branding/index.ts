@@ -14,6 +14,10 @@ export interface Branding {
   links: BrandingLinks;
   i18nReplacements: Array<[string, string]>;
   colors: Record<string, string>;
+  // Nav entries visible to non-superusers; superusers always see all.
+  userNavItems: string[];
+  // User-setting sidebar entries visible to non-superusers.
+  userSettingItems: string[];
 }
 
 export const DEFAULT_BRANDING: Branding = {
@@ -24,6 +28,8 @@ export const DEFAULT_BRANDING: Branding = {
   links: {},
   i18nReplacements: [['RAGFlow', 'RE3']],
   colors: {},
+  userNavItems: ['home', 'chat', 'search'],
+  userSettingItems: ['team', 'profile'],
 };
 
 let branding: Branding = DEFAULT_BRANDING;

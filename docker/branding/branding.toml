@@ -15,8 +15,24 @@ pageTitle = "RE3"
 faviconUrl = "/branding/logo.png"
 logoUrl = "/branding/logo.png"
 
-# [von, zu]-Paare für Laufzeit-Textersetzung in allen UI-Sprachen (case-sensitiv)
-i18nReplacements = [["RAGFlow", "RE3"]]
+# [von, zu]-Paare für Laufzeit-Textersetzung in allen UI-Sprachen (case-sensitiv).
+# Zweites Paar ersetzt die generische Login-Headline (englische UI) durch die
+# RE3-Tagline — Wortlaut hier anpassbar, ohne Rebuild.
+i18nReplacements = [
+  ["RAGFlow", "RE3"],
+  ["A leading RAG engine for LLM context", "Legal research grounded in South African case law"],
+]
+
+# Menüpunkte, die Nicht-Superuser sehen (Superuser sehen immer alles).
+# Gültige Werte: "home", "datasets", "chat", "search", "agent", "memory", "files".
+# Steuert Navbar und Home-Sektionen; reine UI-Ausblendung (keine Rechteverwaltung).
+userNavItems = ["home", "chat", "search"]
+
+# Profil-/Settings-Menüpunkte für Nicht-Superuser (Superuser sehen alles).
+# Gültige Werte: "data-sources", "chat-channels", "model-providers", "mcp",
+# "team", "profile", "api". Der "Invite member"-Button auf der Team-Seite
+# ist für Nicht-Superuser immer ausgeblendet.
+userSettingItems = ["team", "profile"]
 
 [links]
 # Fehlender/auskommentierter Eintrag = Element wird ausgeblendet.
