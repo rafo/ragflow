@@ -25,7 +25,7 @@ import { useSwitchDebugMode } from './use-switch-debug-mode';
 export default function Chat() {
   const { t } = useTranslation();
   // RE3: chat configuration is an admin capability
-  const { isSuperuser } = useNavItemVisibility();
+  const { hasFullAccess } = useNavItemVisibility();
   const [currentConversation, setCurrentConversation] =
     useState<IClientConversation>({} as IClientConversation);
 
@@ -141,7 +141,7 @@ export default function Chat() {
                 </CardContent>
               </Card>
 
-              {isSuperuser && (
+              {hasFullAccess && (
                 <ChatSettings hasSingleChatBox={hasSingleChatBox}></ChatSettings>
               )}
             </CardContent>

@@ -66,7 +66,7 @@ export function RAGFlowLogo({
   showEmbedIcon?: boolean;
 }) {
   // RE3: embedding/sharing is an admin capability
-  const { isSuperuser } = useNavItemVisibility();
+  const { hasFullAccess } = useNavItemVisibility();
 
   return (
     <div className="flex gap-4 items-center">
@@ -78,7 +78,7 @@ export function RAGFlowLogo({
       >
         {getBranding().appName}
       </h1>
-      {showEmbedIcon && isSuperuser && <EmbedIcon></EmbedIcon>}
+      {showEmbedIcon && hasFullAccess && <EmbedIcon></EmbedIcon>}
     </div>
   );
 }

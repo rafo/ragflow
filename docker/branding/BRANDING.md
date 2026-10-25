@@ -30,8 +30,9 @@ Config-Edit — kein Rebuild.
 | `faviconUrl` | Pfad zum Favicon (relativ zum Web-Root) |
 | `logoUrl` | Pfad zum Logo (Header, Login, Admin, Chat-Avatare, Embed) |
 | `i18nReplacements` | Liste von `[von, zu]`-Paaren, case-sensitive, laufzeit-angewandt auf jede Übersetzung |
-| `userNavItems` | Menüpunkte für Nicht-Superuser (`home`, `datasets`, `chat`, `search`, `agent`, `memory`, `files`); Superuser sehen immer alles. Reine UI-Ausblendung in Navbar + Home, keine Rechteverwaltung |
-| `userSettingItems` | Profil-/Settings-Menüpunkte für Nicht-Superuser (`data-sources`, `chat-channels`, `model-providers`, `mcp`, `team`, `profile`, `api`). Der Team-„Invite member"-Button ist für Nicht-Superuser immer ausgeblendet |
+| `fullAccessEmails` | Konten mit voller Oberfläche (E-Mail, Groß-/Kleinschreibung egal); alle anderen sind Tester. Ersetzt seit v1.0 das `is_superuser`-Kriterium — Superuser sind dort reine Admin-Konten |
+| `userNavItems` | Menüpunkte für Tester (`home`, `datasets`, `chat`, `search`, `agent`, `memory`, `files`); `fullAccessEmails`-Konten sehen immer alles. Reine UI-Ausblendung in Navbar + Home, keine Rechteverwaltung |
+| `userSettingItems` | Profil-/Settings-Menüpunkte für Tester (`data-sources`, `chat-channels`, `model-providers`, `mcp`, `team`, `profile`, `api`). Der Team-„Invite member"-Button ist für Tester immer ausgeblendet |
 | `[links]` `help`/`discord`/`github` | URLs für die Header-/Menü-Icons; fehlender Eintrag blendet das Element aus |
 | `[colors]` | CSS-Custom-Property-Overrides auf `:root`, z.B. `"--primary" = "210 80% 40%"` |
 
@@ -40,7 +41,7 @@ in der TOML mit `/branding/<datei>` referenzieren.
 
 ## Testkunden-Startseite (`assets/home.md`)
 
-Nicht-Superuser sehen statt der RAGFlow-Home-Seite den Inhalt von
+Tester sehen statt der RAGFlow-Home-Seite den Inhalt von
 `assets/home.md` (Prototyp-Status, Hilfe, Feedback-Kanal — Markdown mit
 GFM-Tabellen). Datei editieren + Hard-Refresh genügt, kein Rebuild.
 Fehlt die Datei, erscheint die normale (gefilterte) Home-Seite.

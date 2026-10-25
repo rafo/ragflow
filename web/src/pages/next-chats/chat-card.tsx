@@ -19,7 +19,7 @@ export function ChatCard({
 }: IProps) {
   const { navigateToChat } = useNavigatePage();
   // RE3: rename/delete are admin capabilities
-  const { isSuperuser } = useNavItemVisibility();
+  const { hasFullAccess } = useNavItemVisibility();
 
   return (
     <HomeCard
@@ -30,7 +30,7 @@ export function ChatCard({
         update_time: data.update_time,
       }}
       moreDropdown={
-        isSuperuser ? (
+        hasFullAccess ? (
           <ChatDropdown
             chat={data}
             showChatRenameModal={showChatRenameModal}

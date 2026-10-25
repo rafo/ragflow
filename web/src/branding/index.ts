@@ -14,9 +14,11 @@ export interface Branding {
   links: BrandingLinks;
   i18nReplacements: Array<[string, string]>;
   colors: Record<string, string>;
-  // Nav entries visible to non-superusers; superusers always see all.
+  // Accounts that see the full UI (case-insensitive); all others are testers.
+  fullAccessEmails: string[];
+  // Nav entries visible to testers; full-access users always see all.
   userNavItems: string[];
-  // User-setting sidebar entries visible to non-superusers.
+  // User-setting sidebar entries visible to testers.
   userSettingItems: string[];
 }
 
@@ -28,6 +30,7 @@ export const DEFAULT_BRANDING: Branding = {
   links: {},
   i18nReplacements: [['RAGFlow', 'RE3']],
   colors: {},
+  fullAccessEmails: [],
   userNavItems: ['home', 'chat', 'search'],
   userSettingItems: ['team', 'profile'],
 };

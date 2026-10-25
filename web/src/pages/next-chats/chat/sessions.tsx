@@ -46,7 +46,7 @@ type SessionProps = Pick<
 export function Sessions({ handleConversationCardClick }: SessionProps) {
   const { t } = useTranslation();
   // RE3: embedding/sharing is an admin capability
-  const { isSuperuser } = useNavItemVisibility();
+  const { hasFullAccess } = useNavItemVisibility();
   const {
     list: conversationList,
     total,
@@ -217,7 +217,7 @@ export function Sessions({ handleConversationCardClick }: SessionProps) {
         </div>
 
         {/* RE3: embedding/sharing is an admin capability */}
-        {isSuperuser && (
+        {hasFullAccess && (
           <>
             <Tooltip>
               <TooltipTrigger asChild>
