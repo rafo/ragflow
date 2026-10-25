@@ -577,8 +577,14 @@ func (s *databaseSource) ListResourceRefs(ctx context.Context, kind ResourceKind
 		if parent.ID != "" || parent.Kind != "" {
 			return nil, fmt.Errorf("%w: search apps cannot have a parent scope", ErrInvalidPermission)
 		}
+		// RE3: also list search apps of every tenant the user belongs to, so
+		// team members see the shared search (upstream: creator only).
+		tenantIDs, err := s.tenantIDsForCurrentUser(ctx)
+		if err != nil {
+			return nil, err
+		}
 		if err := s.db.WithContext(ctx).Model(&entity.Search{}).
-			Where("status = ? AND created_by = ?", string(entity.StatusValid), userID).
+			Where("status = ? AND (created_by = ? OR tenant_id IN ?)", string(entity.StatusValid), userID, tenantIDs).
 			Pluck("id", &ids).Error; err != nil {
 			return nil, err
 		}
@@ -586,8 +592,14 @@ func (s *databaseSource) ListResourceRefs(ctx context.Context, kind ResourceKind
 		if parent.ID != "" || parent.Kind != "" {
 			return nil, fmt.Errorf("%w: chats cannot have a parent scope", ErrInvalidPermission)
 		}
+		// RE3: also list chats of every tenant the user belongs to, so team
+		// members see the shared assistants (upstream: own tenant only).
+		tenantIDs, err := s.tenantIDsForCurrentUser(ctx)
+		if err != nil {
+			return nil, err
+		}
 		if err := s.db.WithContext(ctx).Model(&entity.Chat{}).
-			Where("tenant_id = ? AND status = ?", userID, string(entity.StatusValid)).
+			Where("tenant_id IN ? AND status = ?", tenantIDs, string(entity.StatusValid)).
 			Pluck("id", &ids).Error; err != nil {
 			return nil, err
 		}
@@ -1138,24 +1150,32 @@ func memoryResource(memory *entity.Memory) Resource {
 
 func chatResource(chat *entity.Chat) Resource {
 	return Resource{
-		Ref:             ResourceRef{Kind: ResourceKindChat, ID: chat.ID},
-		TenantID:        chat.TenantID,
-		OwnerUserID:     chat.TenantID,
-		Visibility:      VisibilityPrivate,
-		OwnerOperations: []Operation{OperationRead, OperationCreate, OperationUpdate, OperationDelete, OperationRun, OperationUse},
-		Active:          chat.Status != nil && *chat.Status == string(entity.StatusValid),
+		Ref:         ResourceRef{Kind: ResourceKindChat, ID: chat.ID},
+		TenantID:    chat.TenantID,
+		OwnerUserID: chat.TenantID,
+		// RE3: team members may open the chat and run their own sessions on
+		// it (OperationCreate = create a session); update/delete stay owner-only.
+		Visibility:        VisibilityTenant,
+		TenantRequirement: TenantMember,
+		OwnerOperations:   []Operation{OperationRead, OperationCreate, OperationUpdate, OperationDelete, OperationRun, OperationUse},
+		TenantOperations:  []Operation{OperationRead, OperationCreate, OperationRun, OperationUse},
+		Active:            chat.Status != nil && *chat.Status == string(entity.StatusValid),
 	}
 }
 
 func searchAppResource(searchApp *entity.Search) Resource {
 	return Resource{
-		Ref:             ResourceRef{Kind: ResourceKindSearchApp, ID: searchApp.ID},
-		TenantID:        searchApp.TenantID,
-		CreatedBy:       searchApp.CreatedBy,
-		OwnerUserID:     searchApp.CreatedBy,
-		Visibility:      VisibilityPrivate,
-		OwnerOperations: []Operation{OperationRead, OperationUpdate, OperationDelete, OperationRun, OperationUse},
-		Active:          searchApp.Status != nil && *searchApp.Status == string(entity.StatusValid),
+		Ref:         ResourceRef{Kind: ResourceKindSearchApp, ID: searchApp.ID},
+		TenantID:    searchApp.TenantID,
+		CreatedBy:   searchApp.CreatedBy,
+		OwnerUserID: searchApp.CreatedBy,
+		// RE3: team members may open and run the search; update/delete stay
+		// with the creator.
+		Visibility:        VisibilityTenant,
+		TenantRequirement: TenantMember,
+		OwnerOperations:   []Operation{OperationRead, OperationUpdate, OperationDelete, OperationRun, OperationUse},
+		TenantOperations:  []Operation{OperationRead, OperationRun, OperationUse},
+		Active:            searchApp.Status != nil && *searchApp.Status == string(entity.StatusValid),
 	}
 }
 
@@ -1172,7 +1192,9 @@ func chatSessionResource(session *entity.ChatSession, chat *entity.Chat) Resourc
 		Visibility:        VisibilityTenant,
 		TenantRequirement: TenantMember,
 		OwnerOperations:   []Operation{OperationRead, OperationUpdate, OperationDelete, OperationRun, OperationUse},
-		TenantOperations:  []Operation{OperationRead},
+		// RE3: other members' sessions stay hidden (upstream: read-only). Empty,
+		// not nil — nil would fall back to OwnerOperations.
+		TenantOperations:  []Operation{},
 		CreatorOperations: []Operation{OperationRead, OperationUpdate, OperationDelete, OperationRun, OperationUse},
 		Active:            true,
 	}

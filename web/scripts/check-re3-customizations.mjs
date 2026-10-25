@@ -119,6 +119,18 @@ const anchors = [
     needles: ['isSuperuser'],
     purpose: 'search create button + card menus are superuser-only',
   },
+  // Backend patch (Go, compiled into the image built from our branch)
+  {
+    file: '../internal/permission/database_source.go',
+    needles: [
+      'RE3: also list search apps',
+      'RE3: also list chats',
+      'RE3: team members may open the chat',
+      'RE3: team members may open and run the search',
+      "RE3: other members' sessions stay hidden",
+    ],
+    purpose: 'team members may see/use shared chats and searches; sessions stay per-user',
+  },
   {
     file: 'public/branding.toml',
     needles: ['appName', 'userNavItems', 'userSettingItems'],
