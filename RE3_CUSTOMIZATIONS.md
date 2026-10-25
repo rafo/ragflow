@@ -9,8 +9,8 @@ merken wir, dass etwas kaputtging?**
 | Schicht | Was | Upgrade-Verhalten |
 |---|---|---|
 | 1. Optionen | `docker/branding/branding.toml` (gemountet über `web/dist/branding.toml`) | **Überlebt jedes Upgrade unverändert.** Wird zur Laufzeit geladen; kein Rebuild, kein Merge. |
-| 2. Frontend-Quellcode | Branding-Modul, Rollen-Hook, gepatchte Komponenten (Tabelle unten) | **Muss per Cherry-pick auf den neuen Versions-Branch.** Konfliktrisiko dort, wo Upstream dieselben Dateien umbaut. |
-| 3. Deployment | `docker/docker-compose-macos.yml` (Mounts), `docker/.env` (`REGISTER_ENABLED=0`, Image-Tag, ES-Heap) | Cherry-pick wie Schicht 2; Konflikte selten. |
+| 2. Quellcode | Frontend: Branding-Modul, Rollen-Hook, gepatchte Komponenten. Backend: Go-Berechtigungs-Patch (Tabellen unten) | **Muss per Cherry-pick auf den neuen Versions-Branch.** Konfliktrisiko dort, wo Upstream dieselben Dateien umbaut. |
+| 3. Deployment | `docker/docker-compose.re3.yml` (Override auf Upstream-`docker-compose.yml`), `docker/.env` (`COMPOSE_FILE`, `REGISTER_ENABLED=0`, Image-Tag, ES-Heap, MySQL-Port, TZ) | Override-Datei ist rein unsere → kein Konflikt; `.env` von Hand nachziehen. |
 
 **Grundregel für alles Neue:** Immer erst prüfen, ob es sich als Option in
 `branding.toml` (Schicht 1) abbilden lässt — das ist die einzige Schicht ohne
@@ -18,22 +18,22 @@ Upgrade-Kosten. Quellcode nur anfassen, wenn es nicht anders geht, und dann
 ausschließlich über die zentralen Module (`src/branding/`,
 `src/hooks/use-nav-visibility.ts`), nie verstreut.
 
-## ⚠️ Wichtig: Das GitHub-Image enthält unsere UI-Änderungen NICHT
+## Image: wird aus unserem Branch gebaut
 
-Der Actions-Workflow (`.github/workflows/build-arm64.yml`) baut das Docker-
-Image aus **Upstream-RAGFlow** (nur mit ARM64-Dockerfile-Patches). Unsere
-Frontend-Anpassungen wirken lokal nur, weil `docker-compose-macos.yml` das
-selbstgebaute `../web/dist` über das Image mountet:
+Seit v1.0 baut Upstream arm64 selbst; ARM64-Patches entfallen. Der Workflow
+`.github/workflows/build-arm64.yml` baut das **unveränderte Upstream-
+Dockerfile aus unserem Branch** → das Image enthält RE3-Frontend **und**
+Go-Backend-Patch. Kein `web/dist`-Mount mehr nötig.
 
+```bash
+gh workflow run build-arm64.yml --ref macos-arm64-vX.Y.Z -f tag=vX.Y.Z-re3
+# ~35 min; dann in docker/.env: RAGFLOW_IMAGE=ghcr.io/rafo/ragflow:vX.Y.Z-re3
+cd docker && docker-compose pull ragflow-cpu && docker-compose up -d --remove-orphans
 ```
-- ../web/dist:/ragflow/web/dist            # Host-Build ersetzt Image-Frontend
-- ./branding/branding.toml:/ragflow/web/dist/branding.toml:ro
-- ./branding/assets:/ragflow/web/dist/branding:ro
-```
 
-Nach jedem `git pull`/Cherry-pick auf dem Mac also: `cd web && npm run build`.
-**Für den VPS (Phase 1)** heißt das: entweder den Workflow auf unseren Branch
-umstellen (baut dann unser Frontend ins Image) oder `web/dist` mit deployen.
+Zur lokalen Frontend-Iteration ohne Image-Build: `cd web && npm run build`
+und den auskommentierten `web/dist`-Mount in `docker-compose.re3.yml`
+aktivieren. Backend-Änderungen gehen nur über einen neuen Image-Build.
 
 ## Touchpoints in `web/` (Schicht 2)
 
@@ -59,6 +59,26 @@ Alle Quellcode-Anpassungen stecken im Commit-Set „RE3 white-label branding"
 | weitere Logo-Stellen | Admin-Login, Chat-Avatare, `embed-container.tsx` (siehe `git show` des Branding-Commits) |
 | `package.json` | Dependency `smol-toml`, Script `check:re3` |
 
+## Backend-Patch: Team-Sharing für Chats und Searches (Schicht 2b)
+
+Upstream macht Chat-Assistenten und Search-Apps **owner-only**. Für den
+Prototyp müssen Testkunden den geteilten „RE3 Test"-Chat und „RE3 Search"
+nutzen. Seit v1.0 ist das Backend Go mit zentraler Berechtigungsschicht;
+der Patch sitzt deshalb fast komplett an einer Stelle (`// RE3:`-Marker):
+
+| Datei | Änderung |
+|---|---|
+| `internal/permission/database_source.go` | `chatResource`/`searchAppResource`: Sichtbarkeit `Tenant` statt `Private`; Team-Mitglieder dürfen lesen/nutzen (Chat: auch eigene Sessions anlegen), Ändern/Löschen bleibt beim Owner. `ListResourceRefs`: Listen enthalten Chats/Searches aller Tenants des Users. `chatSessionResource`: fremde Sessions für Mitglieder unsichtbar (Upstream: lesbar) — der Owner sieht alle. |
+| `internal/service/search.go` | `PrepareCompletion` läuft unter dem **App-Owner-Tenant** (Modell-Auflösung: Chat/Embedding/Rerank sind tenant-gebunden konfiguriert). |
+| `internal/permission/database_source_test.go`, `internal/service/{chat_list,search}_test.go` | Upstream-Tests auf RE3-Verhalten umgestellt — sie sind jetzt der Wächter. |
+
+Prüfen: `CGO_ENABLED=0 go test ./internal/permission/ && CGO_ENABLED=0 go test ./internal/service/ -run 'Search|ChatServiceList'`
+(lokal ohne Go z. B. im `golang`-Container; CI-Job `re3-backend`).
+
+**Zugehörige Daten-Voraussetzungen** (einmalig gesetzt 18.07., DB):
+Test-Accounts als `normal`-Mitglieder in Rafaels Tenant (`user_tenant`),
+Datasets auf `permission='team'`.
+
 ## Warnsystem: merkt, wenn ein Upgrade etwas zerlegt
 
 1. **Anker-Check** — prüft, dass jeder Touchpoint noch verdrahtet ist:
@@ -83,20 +103,23 @@ Alle Quellcode-Anpassungen stecken im Commit-Set „RE3 white-label branding"
 
 ## Ablauf beim RAGFlow-Upgrade (Kurzform)
 
-Build-/Infra-Teil: siehe `MACOS_ARM64_BUILD_GUIDE.md`. Für die Anpassungen:
-
+0. Backup: Stack stoppen, `mysql_data` + `esdata01` sichern (siehe
+   `docker/migration.sh` bzw. `backups/`)
 1. Neuen Branch vom Upstream-Tag: `git checkout -b macos-arm64-vX.Y.Z vX.Y.Z`
-2. Beide Commit-Sets cherry-picken (ARM64-Build-Set + RE3-Set; die Commits
-   auf dem Vorgänger-Branch mit `git log` identifizieren)
+2. RE3-Commits cherry-picken (auf dem Vorgänger-Branch mit
+   `git log vVORHER..macos-arm64-vVORHER` identifizieren); `docker/.env`
+   nicht mergen, sondern Upstream-Datei nehmen und die RE3-Werte (siehe
+   Schicht 3) von Hand eintragen
 3. Konflikte lösen — erfahrungsgemäß am ehesten in `header.tsx`,
    `global-navbar.tsx` und den Home-/Login-Seiten, wenn Upstream sie
    redesignt hat
 4. `cd web && npm install && npm run check:re3` → jeden roten Anker anhand
-   der Tabelle oben neu verankern
-5. Jest-Tests (Befehl oben) + Leak-Grep
-6. `npm run build`, Stack neu starten, Smoke-Test: Login-Seite (Logo,
+   der Tabellen oben neu verankern
+5. Jest-Tests (Befehl oben), Go-Tests (Backend-Abschnitt) + Leak-Grep
+6. Push, Image bauen (Abschnitt „Image“), Stack neu starten, Smoke-Test: Login-Seite (Logo,
    Tagline, kein Sign-up), als Testkunde einloggen (nur Home/Chat/Search,
-   Profil nur Team+Profile, kein Invite-Button)
+   Profil nur Team+Profile, kein Invite-Button, „RE3 Test“-Chat und
+   „RE3 Search“ sichtbar und nutzbar, nur eigene Sessions)
 7. Push → CI-Check `re3-checks` muss grün sein
 
 ## Checkliste für NEUE UI-Anpassungen
