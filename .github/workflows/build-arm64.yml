@@ -1,0 +1,72 @@
+name: Build ARM64 Docker Image
+
+# Builds the RE3 RAGFlow image for linux/arm64 FROM THIS BRANCH (upstream
+# Dockerfile, unpatched — upstream supports arm64 natively since v1.0) and
+# pushes it to ghcr.io. The image therefore contains the RE3 frontend and
+# the Go team-sharing patch (see RE3_CUSTOMIZATIONS.md).
+#
+# Run: gh workflow run build-arm64.yml --ref macos-arm64-vX.Y.Z -f tag=vX.Y.Z-re3
+# Then set RAGFLOW_IMAGE=ghcr.io/OWNER/ragflow:vX.Y.Z-re3 in docker/.env.
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Image tag to publish (e.g. v1.0.0-rc2-re3)'
+        required: true
+        default: 'v1.0.0-rc2-re3'
+        type: string
+      dry_run:
+        description: 'Build only — skip push to registry (for testing)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository_owner }}/ragflow
+
+jobs:
+  build-arm64:
+    name: Build linux/arm64
+    # Native ARM64 runner — free on public repos, no QEMU overhead
+    runs-on: ubuntu-24.04-arm
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Dockerfile runs `git describe` to generate VERSION
+          fetch-depth: 0
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        if: ${{ !inputs.dry_run }}
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/arm64
+          push: ${{ !inputs.dry_run }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ inputs.tag }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest-re3
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NEED_MIRROR=0
+            GOPROXY=https://proxy.golang.org,direct
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.description=RAGFlow + RE3 customizations (${{ github.ref_name }}) for linux/arm64
+            org.opencontainers.image.revision=${{ github.sha }}

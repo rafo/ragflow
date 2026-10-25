@@ -1,0 +1,18 @@
+# RE3 overrides on top of the upstream docker-compose.yml.
+# Loaded automatically via COMPOSE_FILE in .env, so a plain
+# `docker-compose up -d` (run from docker/) picks it up.
+services:
+  ragflow-cpu:
+    container_name: ragflow-server
+    # Upstream also passes --init-superuser, which seeds the default
+    # admin@ragflow.io account; our accounts are managed via /admin.
+    command:
+      - --enable-adminserver
+    volumes:
+      # Per-deployment branding (see branding/BRANDING.md): edit without
+      # rebuilding the image.
+      - ./branding/branding.toml:/ragflow/web/dist/branding.toml:ro
+      - ./branding/assets:/ragflow/web/dist/branding:ro
+      # Local frontend iteration without an image rebuild:
+      # `cd web && npm run build`, then uncomment.
+      # - ../web/dist:/ragflow/web/dist

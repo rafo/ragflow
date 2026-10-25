@@ -45,7 +45,7 @@ Nicht-Superuser sehen statt der RAGFlow-Home-Seite den Inhalt von
 GFM-Tabellen). Datei editieren + Hard-Refresh genügt, kein Rebuild.
 Fehlt die Datei, erscheint die normale (gefilterte) Home-Seite.
 
-## Bekannte Grenzen (Stand v0.26.4)
+## Bekannte Grenzen (Stand v1.0.0-rc2)
 
 - Doku-Links in einzelnen Tooltips zeigen weiterhin auf ragflow.io
   (bewusst, bis eigene Doku existiert).

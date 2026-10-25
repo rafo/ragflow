@@ -9,6 +9,9 @@ on:
       - 'macos-arm64-*'
     paths:
       - 'web/**'
+      - 'internal/permission/**'
+      - 'internal/service/search*.go'
+      - 'internal/service/chat*.go'
       - '.github/workflows/re3-checks.yml'
   workflow_dispatch:
 
@@ -36,3 +39,23 @@ jobs:
         run: |
           cd web && npx jest src/branding \
             src/hooks/__tests__/use-nav-visibility.test.tsx --no-coverage
+
+  re3-backend:
+    name: Team-sharing permission tests (Go)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      # CGO off: these packages' tests need none of the native libs
+      # (onnxruntime, pdfium, office_oxide) the server binary links.
+      - name: Permission + chat/search service tests
+        env:
+          CGO_ENABLED: '0'
+        run: |
+          go test ./internal/permission/
+          go test ./internal/service/ -run 'Search|ChatServiceList'
