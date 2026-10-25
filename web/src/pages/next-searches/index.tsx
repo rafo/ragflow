@@ -35,7 +35,7 @@ import { SearchCard } from './search-card';
 
 export default function SearchList() {
   // RE3: app creation is an admin capability
-  const { isSuperuser } = useNavItemVisibility();
+  const { hasFullAccess } = useNavItemVisibility();
   // const { data } = useFetchFlowList();
   const { t } = useTranslate('search');
   const { t: tc } = useTranslate('common');
@@ -120,7 +120,7 @@ export default function SearchList() {
             >
               {/* RE3: creating search apps is an admin capability (tester
                   tenants have no model providers configured) */}
-              {isSuperuser && (
+              {hasFullAccess && (
                 <Button
                   data-testid="create-search"
                   onClick={() => openCreateModalFun()}

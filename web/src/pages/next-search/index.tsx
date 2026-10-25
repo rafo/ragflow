@@ -37,7 +37,7 @@ export default function SearchPage() {
   const [searchText, setSearchText] = useState('');
   const { data: userInfo } = useFetchUserInfo();
   // RE3: search configuration is an admin capability
-  const { isSuperuser } = useNavItemVisibility();
+  const { hasFullAccess } = useNavItemVisibility();
   const { openSetting: checkOpenSetting } = useCheckSettings(
     SearchData as ISearchAppDetailProps,
   );
@@ -81,7 +81,7 @@ export default function SearchPage() {
             </div>
           )}
         </div>
-        {openSetting && isSuperuser && (
+        {openSetting && hasFullAccess && (
           <SearchSetting
             open={openSetting}
             setOpen={setOpenSetting}
@@ -91,7 +91,7 @@ export default function SearchPage() {
         )}
       </div>
 
-      {isSuperuser && (
+      {hasFullAccess && (
         <Button
           variant="transparent"
           className="bg-bg-card ml-5 shrink-0"

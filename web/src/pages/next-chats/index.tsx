@@ -22,7 +22,7 @@ import { useRenameChat } from './hooks/use-rename-chat';
 
 export default function ChatList() {
   // RE3: app creation is an admin capability
-  const { isSuperuser } = useNavItemVisibility();
+  const { hasFullAccess } = useNavItemVisibility();
   const {
     data,
     setPagination,
@@ -141,7 +141,7 @@ export default function ChatList() {
             >
               {/* RE3: creating chat apps is an admin capability (tester
                   tenants have no model providers configured) */}
-              {isSuperuser && (
+              {hasFullAccess && (
                 <Button
                   data-testid="create-chat"
                   onClick={handleShowCreateModal}

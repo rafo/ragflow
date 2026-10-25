@@ -3,6 +3,14 @@ import { useNavItemVisibility } from '../use-nav-visibility';
 
 const mockUseFetchUserInfo = jest.fn();
 
+jest.mock('@/branding', () => ({
+  getBranding: () => ({
+    fullAccessEmails: ['Owner@Example.com'],
+    userNavItems: ['home', 'chat', 'search'],
+    userSettingItems: ['team', 'profile'],
+  }),
+}));
+
 jest.mock('@/hooks/use-user-setting-request', () => ({
   useFetchUserInfo: () => mockUseFetchUserInfo(),
 }));
@@ -11,11 +19,14 @@ jest.mock('@/hooks/use-user-setting-request', () => ({
 // upgrade, the visibility hook or its wiring was lost — see
 // RE3_CUSTOMIZATIONS.md.
 describe('useNavItemVisibility', () => {
-  it('limits non-superusers to the branding.toml whitelists', () => {
-    mockUseFetchUserInfo.mockReturnValue({ data: { is_superuser: false } });
+  it('limits testers to the branding.toml whitelists', () => {
+    // is_superuser is ignored: v1.0 superusers cannot use the app at all
+    mockUseFetchUserInfo.mockReturnValue({
+      data: { email: 'tester@example.com', is_superuser: true },
+    });
     const { result } = renderHook(() => useNavItemVisibility());
 
-    expect(result.current.isSuperuser).toBe(false);
+    expect(result.current.hasFullAccess).toBe(false);
     expect(result.current.isNavItemVisible('chat')).toBe(true);
     expect(result.current.isNavItemVisible('search')).toBe(true);
     expect(result.current.isNavItemVisible('datasets')).toBe(false);
@@ -33,15 +44,17 @@ describe('useNavItemVisibility', () => {
     mockUseFetchUserInfo.mockReturnValue({ data: {} });
     const { result } = renderHook(() => useNavItemVisibility());
 
-    expect(result.current.isSuperuser).toBe(false);
+    expect(result.current.hasFullAccess).toBe(false);
     expect(result.current.isNavItemVisible('datasets')).toBe(false);
   });
 
-  it('shows superusers everything', () => {
-    mockUseFetchUserInfo.mockReturnValue({ data: { is_superuser: true } });
+  it('shows fullAccessEmails accounts everything (case-insensitive)', () => {
+    mockUseFetchUserInfo.mockReturnValue({
+      data: { email: 'owner@example.com' },
+    });
     const { result } = renderHook(() => useNavItemVisibility());
 
-    expect(result.current.isSuperuser).toBe(true);
+    expect(result.current.hasFullAccess).toBe(true);
     expect(result.current.isNavItemVisible('datasets')).toBe(true);
     expect(result.current.isSettingItemVisible('api')).toBe(true);
   });
