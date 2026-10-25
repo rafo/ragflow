@@ -47,13 +47,13 @@ Alle Quellcode-Anpassungen stecken im Commit-Set „RE3 white-label branding"
 | `src/main.tsx` | `loadBranding()` **vor** dem React-Render |
 | `src/locales/config.ts` | Registriert den Post-Processor bei i18next |
 | `index.html` | Favicon/Titel-Bootstrap |
-| `src/hooks/use-nav-visibility.ts` | Rollen-Whitelist-Hook (`isNavItemVisible`, `isSettingItemVisible`) |
-| `src/layouts/components/global-navbar.tsx` | Navbar gefiltert für Nicht-Superuser; Logo aus Branding |
+| `src/hooks/use-nav-visibility.ts` | Rollen-Whitelist-Hook (`hasFullAccess` aus `fullAccessEmails`, `isNavItemVisible`, `isSettingItemVisible`). **Nicht** `is_superuser`: Superuser sind seit v1.0 reine Admin-Konten und bekommen in der App 403 |
+| `src/layouts/components/global-navbar.tsx` | Navbar gefiltert für Tester; Logo aus Branding |
 | `src/layouts/components/header.tsx` | Discord/GitHub-Icons nur wenn `brand.links.*` gesetzt (beide Blöcke: sichtbar + Mess-Block!) |
-| `src/pages/home/index.tsx` + `applications.tsx` | Home-Sektionen/App-Tabs gefiltert; Nicht-Superuser bekommen die Prototyp-Startseite |
+| `src/pages/home/index.tsx` + `applications.tsx` | Home-Sektionen/App-Tabs gefiltert; Tester bekommen die Prototyp-Startseite |
 | `src/pages/home/prototype-home.tsx` | Testkunden-Home, rendert das mountbare `/branding/home.md` (Inhalte ohne Rebuild änderbar) |
 | `src/pages/user-setting/sidebar/index.tsx` | Profil-Sidebar gefiltert (`userSettingItems`) |
-| `src/pages/user-setting/setting-team/index.tsx` | „Invite member" nur für Superuser |
+| `src/pages/user-setting/setting-team/index.tsx` | „Invite member" nur für `fullAccessEmails`-Konten |
 | `src/routes.tsx` | Default-Route von `/user-setting` = Profile (Upstream: Data sources) |
 | `src/pages/login-next/index.tsx` | Login: Logo/Name aus Branding |
 | weitere Logo-Stellen | Admin-Login, Chat-Avatare, `embed-container.tsx` (siehe `git show` des Branding-Commits) |

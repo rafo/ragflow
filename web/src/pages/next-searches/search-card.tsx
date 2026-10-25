@@ -28,13 +28,13 @@ interface IProps {
 export function SearchCard({ data, showSearchRenameModal }: IProps) {
   const { navigateToSearch } = useNavigatePage();
   // RE3: rename/delete are admin capabilities
-  const { isSuperuser } = useNavItemVisibility();
+  const { hasFullAccess } = useNavItemVisibility();
 
   return (
     <HomeCard
       data={data}
       moreDropdown={
-        isSuperuser ? (
+        hasFullAccess ? (
           <SearchDropdown
             dataset={data}
             showSearchRenameModal={showSearchRenameModal}

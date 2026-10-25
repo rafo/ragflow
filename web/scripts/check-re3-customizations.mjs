@@ -76,7 +76,7 @@ const anchors = [
   },
   {
     file: 'src/pages/user-setting/setting-team/index.tsx',
-    needles: ['isSuperuser'],
+    needles: ['hasFullAccess'],
     purpose: 'team "Invite member" button hidden for non-superusers',
   },
   {
@@ -91,32 +91,32 @@ const anchors = [
   },
   {
     file: 'src/pages/next-search/ragflow-logo.tsx',
-    needles: ['isSuperuser'],
+    needles: ['hasFullAccess'],
     purpose: 'search share/embed button is superuser-only',
   },
   {
     file: 'src/pages/next-search/index.tsx',
-    needles: ['isSuperuser'],
+    needles: ['hasFullAccess'],
     purpose: 'search settings gear is superuser-only',
   },
   {
     file: 'src/pages/next-chats/chat/sessions.tsx',
-    needles: ['isSuperuser'],
+    needles: ['hasFullAccess'],
     purpose: 'chat share/embed button is superuser-only',
   },
   {
     file: 'src/pages/next-chats/chat/index.tsx',
-    needles: ['isSuperuser'],
+    needles: ['hasFullAccess'],
     purpose: 'chat settings panel is superuser-only',
   },
   {
     file: 'src/pages/next-chats/index.tsx',
-    needles: ['isSuperuser'],
+    needles: ['hasFullAccess'],
     purpose: 'chat create button + card menus are superuser-only',
   },
   {
     file: 'src/pages/next-searches/index.tsx',
-    needles: ['isSuperuser'],
+    needles: ['hasFullAccess'],
     purpose: 'search create button + card menus are superuser-only',
   },
   // Backend patch (Go, compiled into the image built from our branch)

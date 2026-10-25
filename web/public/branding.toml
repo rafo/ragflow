@@ -23,15 +23,20 @@ i18nReplacements = [
   ["A leading RAG engine for LLM context", "Legal research grounded in South African case law"],
 ]
 
-# Menüpunkte, die Nicht-Superuser sehen (Superuser sehen immer alles).
+# Konten mit voller Oberfläche (Groß-/Kleinschreibung egal); alle anderen
+# sind Tester. Nicht is_superuser: Superuser sind seit v1.0 reine Admin-
+# Konten (/admin) und können die App nicht nutzen.
+fullAccessEmails = []
+
+# Menüpunkte, die Tester sehen (Konten aus fullAccessEmails sehen alles).
 # Gültige Werte: "home", "datasets", "chat", "search", "agent", "memory", "files".
 # Steuert Navbar und Home-Sektionen; reine UI-Ausblendung (keine Rechteverwaltung).
 userNavItems = ["home", "chat", "search"]
 
-# Profil-/Settings-Menüpunkte für Nicht-Superuser (Superuser sehen alles).
+# Profil-/Settings-Menüpunkte für Tester (Konten aus fullAccessEmails sehen alles).
 # Gültige Werte: "data-sources", "chat-channels", "model-providers", "mcp",
 # "team", "profile", "api". Der "Invite member"-Button auf der Team-Seite
-# ist für Nicht-Superuser immer ausgeblendet.
+# ist für Tester immer ausgeblendet.
 userSettingItems = ["team", "profile"]
 
 [links]

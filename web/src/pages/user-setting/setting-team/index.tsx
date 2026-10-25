@@ -35,7 +35,7 @@ import UserTable from './user-table';
 
 const UserSettingTeam = () => {
   const { data: userInfo } = useFetchUserInfo();
-  const { isSuperuser } = useNavItemVisibility();
+  const { hasFullAccess } = useNavItemVisibility();
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState('');
   const [searchUser, setSearchUser] = useState('');
@@ -79,7 +79,7 @@ const UserSettingTeam = () => {
                 value={searchUser}
                 onChange={(e) => setSearchUser(e.target.value)}
               />
-              {isSuperuser && (
+              {hasFullAccess && (
                 <Button onClick={showAddingTenantModal}>
                   <UserPlus className=" h-4 w-4" />
                   {t('setting.invite')}
