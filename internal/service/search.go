@@ -298,6 +298,13 @@ func (s *SearchService) PrepareCompletion(ctx context.Context, userID, searchID 
 		}
 	}
 
+	// RE3: run under the app-owning tenant so model resolution (chat,
+	// embedding, rerank) uses the owner's configured providers — team
+	// members' own tenants have no model config.
+	if ownerTenantID, _ := searchDetail["tenant_id"].(string); ownerTenantID != "" {
+		userID = ownerTenantID
+	}
+
 	modelID, _ := stringFromSearchConfig(searchConfig["chat_id"])
 	if modelID == "" {
 		tenantSvc := s.tenantService

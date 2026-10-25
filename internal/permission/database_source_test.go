@@ -671,7 +671,13 @@ func TestDatabaseCheckerKeepsChatsPrivateToTheirOwner(t *testing.T) {
 	checker := NewDatabaseChecker(db)
 	teamChat := ResourceRef{Kind: ResourceKindChat, ID: "team-chat"}
 	member := Subject{UserID: membership.UserID}
+	// RE3: team members may read/use the chat and create their own sessions.
 	for _, operation := range []Operation{OperationRead, OperationCreate, OperationRun, OperationUse} {
+		if err := checker.CheckResource(context.Background(), member, teamChat, operation); err != nil {
+			t.Errorf("team member CheckResource(chat, %s) error = %v, want nil", operation, err)
+		}
+	}
+	for _, operation := range []Operation{OperationUpdate, OperationDelete} {
 		if err := checker.CheckResource(context.Background(), member, teamChat, operation); !errors.Is(err, ErrPermissionDenied) {
 			t.Errorf("team member CheckResource(chat, %s) error = %v, want permission denied", operation, err)
 		}
@@ -689,8 +695,8 @@ func TestDatabaseCheckerKeepsChatsPrivateToTheirOwner(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Scope(chats) error = %v", err)
 	}
-	if scope.Mode != ScopeNone || len(scope.ResourceIDs) != 0 {
-		t.Fatalf("team member Scope(chats) = %+v, want empty scope", scope)
+	if scope.Mode != ScopeIDs || len(scope.ResourceIDs) != 1 || scope.ResourceIDs[0] != "team-chat" {
+		t.Fatalf("team member Scope(chats) = %+v, want only team-chat (RE3)", scope)
 	}
 
 	ownerScope, err := checker.Scope(context.Background(), Subject{UserID: "team-tenant"}, ScopeQuery{Kind: ResourceKindChat, Operation: OperationRead})
@@ -741,8 +747,9 @@ func TestDatabaseCheckerScopesChatSessionsAndRestrictsMutations(t *testing.T) {
 	checker := NewDatabaseChecker(db)
 	creatorSession := ResourceRef{Kind: ResourceKindChatSession, ID: "creator-session"}
 	reader := Subject{UserID: "team-reader"}
-	if err := checker.CheckResource(context.Background(), reader, creatorSession, OperationRead); err != nil {
-		t.Errorf("tenant member CheckResource(session read) error = %v, want nil", err)
+	// RE3: members only reach their own sessions.
+	if err := checker.CheckResource(context.Background(), reader, creatorSession, OperationRead); !errors.Is(err, ErrPermissionDenied) {
+		t.Errorf("tenant member CheckResource(session read) error = %v, want permission denied", err)
 	}
 	if err := checker.CheckResource(context.Background(), reader, creatorSession, OperationUpdate); !errors.Is(err, ErrPermissionDenied) {
 		t.Errorf("tenant member CheckResource(session update) error = %v, want permission denied", err)
@@ -773,8 +780,17 @@ func TestDatabaseCheckerScopesChatSessionsAndRestrictsMutations(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Scope(chat sessions) error = %v", err)
 	}
-	if scope.Mode != ScopeIDs || len(scope.ResourceIDs) != 2 {
-		t.Fatalf("Scope(chat sessions) = %+v, want both sessions visible read-only", scope)
+	if scope.Mode != ScopeNone || len(scope.ResourceIDs) != 0 {
+		t.Fatalf("Scope(chat sessions) = %+v, want none of the other members' sessions (RE3)", scope)
+	}
+	ownerScope, err := checker.Scope(context.Background(), Subject{UserID: chat.TenantID}, ScopeQuery{
+		Kind: ResourceKindChatSession, Parent: ResourceRef{Kind: ResourceKindChat, ID: chat.ID}, Operation: OperationRead,
+	})
+	if err != nil {
+		t.Fatalf("owner Scope(chat sessions) error = %v", err)
+	}
+	if ownerScope.Mode != ScopeIDs || len(ownerScope.ResourceIDs) != 2 {
+		t.Fatalf("owner Scope(chat sessions) = %+v, want both sessions", ownerScope)
 	}
 }
 
@@ -813,10 +829,13 @@ func TestDatabaseCheckerKeepsSearchAppsPrivateToTheirCreator(t *testing.T) {
 	checker := NewDatabaseChecker(db)
 	teamSearch := ResourceRef{Kind: ResourceKindSearchApp, ID: "team-search"}
 	member := Subject{UserID: "member-1"}
-	if err := checker.CheckResource(context.Background(), member, teamSearch, OperationRead); !errors.Is(err, ErrPermissionDenied) {
-		t.Errorf("tenant member CheckResource(search read) error = %v, want permission denied", err)
+	// RE3: team members may read and run the search.
+	for _, operation := range []Operation{OperationRead, OperationRun, OperationUse} {
+		if err := checker.CheckResource(context.Background(), member, teamSearch, operation); err != nil {
+			t.Errorf("tenant member CheckResource(search %s) error = %v, want nil", operation, err)
+		}
 	}
-	for _, operation := range []Operation{OperationUpdate, OperationDelete, OperationRun, OperationUse} {
+	for _, operation := range []Operation{OperationUpdate, OperationDelete} {
 		if err := checker.CheckResource(context.Background(), member, teamSearch, operation); !errors.Is(err, ErrPermissionDenied) {
 			t.Errorf("tenant member CheckResource(search %s) error = %v, want permission denied", operation, err)
 		}
@@ -851,15 +870,15 @@ func TestDatabaseCheckerKeepsSearchAppsPrivateToTheirCreator(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Scope(search read) error = %v", err)
 	}
-	if readScope.Mode != ScopeIDs || len(readScope.ResourceIDs) != 1 || readScope.ResourceIDs[0] != "member-search" {
-		t.Fatalf("Scope(search read) = %+v, want only member-search", readScope)
+	if readScope.Mode != ScopeIDs || len(readScope.ResourceIDs) != 2 {
+		t.Fatalf("Scope(search read) = %+v, want team-search and member-search (RE3)", readScope)
 	}
 	runScope, err := checker.Scope(context.Background(), member, ScopeQuery{Kind: ResourceKindSearchApp, Operation: OperationRun})
 	if err != nil {
 		t.Fatalf("Scope(search run) error = %v", err)
 	}
-	if runScope.Mode != ScopeIDs || len(runScope.ResourceIDs) != 1 || runScope.ResourceIDs[0] != "member-search" {
-		t.Fatalf("Scope(search run) = %+v, want only member-search", runScope)
+	if runScope.Mode != ScopeIDs || len(runScope.ResourceIDs) != 2 {
+		t.Fatalf("Scope(search run) = %+v, want team-search and member-search (RE3)", runScope)
 	}
 }
 

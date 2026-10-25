@@ -99,7 +99,7 @@ func TestChatServiceListChatsDefaultReturnsAllWithCorrectTotal(t *testing.T) {
 	}
 }
 
-func TestChatServiceListChatsDoesNotExposeAnotherTenantsChats(t *testing.T) {
+func TestChatServiceListChatsIncludesTeamTenantChats(t *testing.T) {
 	db := setupChatListTestDB(t)
 
 	if err := db.Create(&entity.User{
@@ -130,8 +130,9 @@ func TestChatServiceListChatsDoesNotExposeAnotherTenantsChats(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ListChats failed: %v", err)
 	}
-	if result.Total != 0 || len(result.Chats) != 0 {
-		t.Fatalf("expected another tenant's chat to be hidden, got total=%d len=%d", result.Total, len(result.Chats))
+	// RE3: members of tenant-2 see its shared chats (upstream hid them).
+	if result.Total != 1 || len(result.Chats) != 1 {
+		t.Fatalf("expected the team tenant's chat to be listed, got total=%d len=%d", result.Total, len(result.Chats))
 	}
 }
 
