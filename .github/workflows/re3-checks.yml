@@ -51,11 +51,10 @@ jobs:
         with:
           go-version-file: go.mod
 
-      # CGO off: these packages' tests need none of the native libs
-      # (onnxruntime, pdfium, office_oxide) the server binary links.
-      - name: Permission + chat/search service tests
+      # CGO off: the permission tests need none of the native libs. Since
+      # v1.0.0-rc3 internal/service imports cgo-only decisionhead, so its
+      # chat/search tests only build with onnxruntime/pdfium/office_oxide.
+      - name: Permission tests
         env:
           CGO_ENABLED: '0'
-        run: |
-          go test ./internal/permission/
-          go test ./internal/service/ -run 'Search|ChatServiceList'
+        run: go test ./internal/permission/
