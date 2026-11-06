@@ -228,6 +228,9 @@ COPY internal internal
 COPY cmd cmd
 COPY build.sh ./
 COPY Dockerfile ./
+# RE3: build.sh falls back to this downloader when the runner has no pre-baked
+# native libs (GitHub-hosted runners); upstream never copies it.
+COPY tools/scripts/download_dev_deps.py tools/scripts/
 
 # ONNX Runtime static archives: build.sh's _seed_from_system copies the ORT
 # static libs from the runner's pre-baked /opt/ragflow-native-libs/onnxruntime
